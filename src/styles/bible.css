@@ -1,0 +1,17 @@
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.book-button {
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 12px 10px;
+}
+.book-button:hover {
+  background: var(--panel);
+  cursor: pointer;
+  border-radius: var(--radius);
+}
