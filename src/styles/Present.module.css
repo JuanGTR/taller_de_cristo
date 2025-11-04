@@ -1,0 +1,148 @@
+.present {
+  position: fixed;
+  inset: 0;
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 24px 16px 96px;
+  box-sizing: border-box;
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+  line-height: 1.6;
+}
+
+.present__verse {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(12px, 2vh, 24px);
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.present__line {
+  font-weight: 400;
+  color: #ffffff;
+  text-wrap: pretty;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  font-size: clamp(1.2rem, 4vw, 2.4rem);
+}
+
+.present__line strong {
+  font-weight: 600;
+  margin-right: 0.25em;
+  color: #88ccff;
+}
+
+.present__dock {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 20, 0.85);
+  border-radius: 50px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 20px;
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  flex-wrap: nowrap;
+  max-width: 90%;
+  overflow-x: auto;
+}
+
+.dock__button {
+  background: #1e1e1e;
+  border: none;
+  color: #fff;
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  padding: 10px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.dock__button:hover {
+  background: #333;
+}
+
+.dock__ref {
+  color: #ccc;
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  white-space: nowrap;
+}
+
+/* === Media Queries === */
+
+@media (max-width: 600px) {
+  .present {
+    padding: 16px 12px 88px;
+    font-size: 1.1rem;
+  }
+
+  .present__dock {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 40px;
+    width: calc(100% - 32px);
+    max-width: 480px;
+  }
+
+  .dock__button {
+    flex: 0 1 auto;
+    font-size: 1.1rem;
+    padding: 8px 10px;
+    min-width: 40px;
+  }
+
+  .dock__ref {
+    font-size: 0.8rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1199px) {
+  .present {
+    padding: 24px 20px 96px;
+    font-size: 1.3rem;
+  }
+
+  .present__line {
+    max-width: 90%;
+  }
+
+  .dock__ref {
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .present {
+    padding: 48px 64px 128px;
+    font-size: 1.6rem;
+  }
+
+  .present__line {
+    max-width: 80%;
+  }
+
+  .dock__ref {
+    font-size: 1.1rem;
+  }
+}

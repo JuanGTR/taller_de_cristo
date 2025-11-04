@@ -63,19 +63,20 @@ export default function BibleSearch() {
     setSubmitted(false);
   }
 
-  function sendToPresent() {
-    navigate("/present", {
-      state: {
-        deck: [
-          {
-            type: "bible",
-            ref: preview.ref,
-            chunks: [preview.verses],
-          },
-        ],
-      },
-    });
-  }
+function sendToPresent() {
+  navigate("/present", {
+    state: {
+      deck: [
+        {
+          type: "bible",
+          ref: preview.ref,
+          chunks: preview.verses.map(v => [v]), // <-- each verse becomes its own slide
+        },
+      ],
+    },
+  });
+}
+
 
   return (
     <div className="container bible">
