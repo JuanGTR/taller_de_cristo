@@ -1,4 +1,3 @@
-// src/pages/BibleSearch.jsx
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -32,16 +31,15 @@ export default function BibleSearch() {
     submit, reset
   } = useBibleLookup();
 
-  // 🔒 Only auto-submit ONCE when coming from Home with an initial value.
+  // Auto-submit once when arriving from Home with initial input
   const triedAuto = useRef(false);
-
   useEffect(() => {
     const initial = location.state?.input;
     if (!initial || triedAuto.current) return;
 
-    setInput(initial);
-    triedAuto.current = true;   // prevent re-trying on error/re-render
-    submit();                   // attempt once; if invalid, user edits manually
+    triedAuto.current = true;  // prevent re-run
+    setInput(initial);         // show typed value in the field
+    submit(initial);           // ✅ use override so no stale state
   }, [location.state, setInput, submit]);
 
   function handleBookClick(book) {
@@ -50,7 +48,7 @@ export default function BibleSearch() {
 
   function handleSearchSubmit(e) {
     e.preventDefault();
-    submit();
+    submit(); // uses current state value
   }
 
   function sendToPresent() {
@@ -84,7 +82,12 @@ export default function BibleSearch() {
           inputClassName="search-bar__input"
           autoFocus
         />
-        <button className="button button--primary" onClick={submit} disabled={loading}>
+        <button
+          className="button button--primary"
+          onClick={() => submit()}
+          disabled={loading}
+          style={{ marginTop: 8 }}
+        >
           {loading ? "Buscando…" : "Buscar"}
         </button>
       </div>
@@ -96,7 +99,11 @@ export default function BibleSearch() {
       )}
 
       {submitted && (
-        <button className="button button--ghost" onClick={reset} style={{ marginTop: 16 }}>
+        <button
+          className="button button--ghost"
+          onClick={reset}
+          style={{ marginTop: 16 }}
+        >
           Volver a la selección de libros
         </button>
       )}
