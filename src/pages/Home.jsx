@@ -1,25 +1,36 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from '../assets/Altar Pro Logo.svg';
 import styles from '../styles/Home.module.css';
+import SearchBar from "../components/SearchBar"; // <-- add this import
 
 export default function Home() {
   const navigate = useNavigate();
+  const [homeInput, setHomeInput] = useState("");
+
+  function handleHomeSearch() {
+    // Send the typed input to /bible; BibleSearch will parse/fetch
+    navigate("/bible", { state: { input: homeInput } });
+  }
 
   return (
     <div className={styles.home}>
       <div className={styles.home__header}>
         <img src={logo} alt="Altar Pro Logo" className={styles.home__logo} />
-       <h1 className={styles.home__brand}>
-  <span className={styles.home__brandTop}>Altar</span>
-  <span className={styles.home__brandBottom}>Pro</span>
-</h1>
-
+        <h1 className={styles.home__brand}>
+          <span className={styles.home__brandTop}>Altar</span>
+          <span className={styles.home__brandBottom}>Pro</span>
+        </h1>
       </div>
 
       <div className={styles.home__card}>
-        <input
-          className={styles.home__searchbar}
+        <SearchBar
+          value={homeInput}
+          onChange={setHomeInput}
+          onSubmit={handleHomeSearch}
           placeholder="Cita Bíblica, Música, Alabanza"
+          className={styles.home__searchForm}     // optional wrapper class
+          inputClassName={styles.home__searchbar} // reuse your existing style
         />
 
         <div className={styles.home__modes}>
