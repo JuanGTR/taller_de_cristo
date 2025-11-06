@@ -1,0 +1,203 @@
+/* Home.module.css — upgraded layout & responsiveness */
+
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: clamp(24px, 4vh, 56px) 20px;
+  background-color: #000;
+  color: #fff;
+  min-height: 100svh; /* accounts for mobile browser UI */
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  gap: clamp(16px, 2vh, 28px);
+}
+
+/* HEADER */
+.home__header {
+  display: flex;
+  align-items: center;
+}
+
+.home__logo {
+  /* “Triple” feel, but responsive so it doesn’t blow out on small screens */
+  width: clamp(96px, 18vw, 256px);
+  height: clamp(96px, 18vw, 256px);
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,.45));
+}
+
+.home__brand {
+  /* ~4rem on desktop, scales down elegantly on smaller screens */
+  font-size: clamp(2rem, 5.5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: .2px;
+  text-wrap: balance;
+}
+
+.home__brandTop,
+.home__brandBottom {
+  display: block; /* stack “Altar” and “Pro” on separate lines */
+}
+
+.home__brandBottom {
+  font-weight: 700;
+  opacity: .95;
+}
+
+/* CARD (hero panel) */
+.home__card {
+  background: linear-gradient(135deg, #2a0055 0%, #470089 55%, #7a0dd6 100%);
+  padding: clamp(24px, 3.5vh, 40px) clamp(18px, 3vw, 36px);
+  border-radius: 22px;
+  width: min(92vw, 920px);      /* wider card for desktop */
+  box-shadow: 0 18px 48px rgba(0,0,0,.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2vh, 22px);
+}
+
+/* SEARCH */
+.home__searchbar {
+  width: min(100%, 760px);
+  padding: 14px 18px;
+  border-radius: 30px;
+  border: none;
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  color: #111;
+  background: #fff;
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+/* BUTTONS */
+.home__modes {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 760px;
+}
+
+.home__button {
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: none;
+  background: #1e1e1e;
+  color: #fff;
+  font-size: clamp(0.95rem, 1.2vw, 1rem);
+  font-weight: 700;
+  transition: transform .05s ease, background .2s ease, box-shadow .2s ease;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.home__button:hover {
+  background: #2a2a2a;
+  box-shadow: 0 6px 16px rgba(0,0,0,.35);
+}
+
+.home__button:active {
+  transform: translateY(1px);
+}
+
+.primary {
+  background: linear-gradient(180deg, #b44dff 0%, #9a24ff 100%);
+}
+
+/* INTRO / TIP */
+.home__intro {
+  width: min(100%, 780px);
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  line-height: 1.65;
+  color: #f0eaff;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.home__intro p { margin: .4rem 0; }
+
+.home__tip {
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
+  color: #dbcff5;
+  text-align: center;
+  opacity: .9;
+}
+
+/* ===== iPhone-style dock (small screens) ===== */
+@media (max-width: 600px) {
+  .home {
+    justify-content: space-between;  /* push card to bottom */
+    padding: 16px 12px 0;
+    gap: 10px;
+  }
+
+  .home__header {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .home__card {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    width: 100%;
+    border-radius: 28px 28px 0 0;
+    padding: 18px 14px 20px;
+    margin: 0;
+    background: linear-gradient(135deg, #2a0055, #3b0073);
+    box-shadow: 0 -10px 30px rgba(0,0,0,.55);
+    backdrop-filter: saturate(140%) blur(8px);
+  }
+
+  /* Search above the “dock” buttons */
+  .home__searchbar {
+    width: 92%;
+    margin: 2px auto 6px;
+    font-size: 1rem;
+  }
+
+  /* Dock row */
+  .home__modes {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 10px;
+  }
+
+  .home__button {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 10px;
+    border-radius: 16px;
+  }
+
+  /* Tighter intro & tip so no scroll needed */
+  .home__intro {
+    width: 92%;
+    font-size: .95rem;
+    line-height: 1.55;
+  }
+
+  .home__tip {
+    width: 92%;
+    font-size: .85rem;
+    margin-top: 2px;
+  }
+}
+
+/* ===== Large desktop polish ===== */
+@media (min-width: 1200px) {
+  .home { gap: 20px; }
+
+  .home__card {
+    width: min(92vw, 960px);
+    padding: 40px 44px;
+  }
+
+  .home__intro { font-size: 1.08rem; }
+  .home__tip   { font-size: 1rem; }
+}
