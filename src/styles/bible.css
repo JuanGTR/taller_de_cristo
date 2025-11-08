@@ -1,17 +1,208 @@
-.book-grid {
+/* ===== Bible page — matches Home aesthetic ===== */
+
+.bible {
+  background: #000;
+  color: #fff;
+  min-height: 100svh;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 10px;
-  margin-top: 20px;
+  gap: clamp(14px, 2vh, 22px);
+  padding: clamp(24px, 4vh, 56px) 20px;
+  box-sizing: border-box;
 }
 
-.book-button {
-  text-align: center;
-  font-size: 0.9rem;
-  padding: 12px 10px;
+.bible__title {
+  font-size: clamp(1.4rem, 3.6vw, 2rem);
+  font-weight: 800;
+  margin: 0;
+  display: flex;
+  justify-content: center;
 }
-.book-button:hover {
-  background: var(--panel);
-  cursor: pointer;
-  border-radius: var(--radius);
+
+.bible__form.card {
+  background: linear-gradient(135deg, #2a0055 0%, #470089 55%, #7a0dd6 100%);
+  border-radius: 22px;
+  box-shadow: 0 18px 48px rgba(0,0,0,.55);
+  padding: clamp(18px, 2.6vh, 26px) clamp(16px, 2.6vw, 28px);
+  display: grid;
+  gap: 10px;
+  width: min(92vw, 920px);
+  justify-self: center;
+}
+
+.bible__label {
+  font-weight: 700;
+  color: #f4eaff;
+  opacity: .95;
+}
+
+.search-bar { display: flex; gap: 8px; width: 100%; }
+.search-bar__input {
+  flex: 1;
+  background: #fff;
+  color: #111;
+  border: none;
+  border-radius: 30px;
+  padding: 14px 18px;
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+.bible__submit { margin-top: 6px; width: 100%; }
+
+/* ========== Drilldown (step-by-step) ========== */
+.drilldown {
+  width: min(92vw, 980px);
+  justify-self: center;
+  background: #0b0b0b;
+  border: 1px solid #1f1f1f;
+  border-radius: 18px;
+  padding: clamp(14px, 2vh, 18px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.5);
+  display: grid;
+  gap: 12px;
+}
+
+/* Tabs (OT/NT + Back) */
+.drilldown__tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.drilldown__tab {
+  background: #141414;
+  border: 1px solid #232323;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-weight: 700;
+}
+.drilldown__tab.is-active {
+  background: linear-gradient(180deg, #b44dff 0%, #9a24ff 100%);
+  border-color: transparent;
+  color: #061d2f;
+}
+.drilldown__spacer { flex: 1; }
+.drilldown__back {
+  background: #171717;
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  padding: 10px 14px;
+  color: #fff;
+  opacity: .95;
+}
+.drilldown__back:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* Section titles */
+.drilldown__section-title {
+  color: #c9b8f6;
+  font-weight: 700;
+  letter-spacing: .2px;
+  opacity: .9;
+}
+
+/* Grids */
+.drilldown__grid {
+  display: grid;
+  gap: 8px;
+}
+.drilldown__grid--books {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+.drilldown__grid--chapters {
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+}
+.drilldown__grid--verses {
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+}
+
+/* One step at a time */
+.drilldown__grid--books,
+.drilldown__grid--chapters,
+.drilldown__grid--verses,
+.drilldown__section-title {
+  display: none;
+}
+.drilldown[data-step="books"]    .drilldown__section-title:nth-of-type(1),
+.drilldown[data-step="books"]    .drilldown__grid--books { display: grid; }
+
+.drilldown[data-step="chapters"] .drilldown__section-title:nth-of-type(2),
+.drilldown[data-step="chapters"] .drilldown__grid--chapters { display: grid; }
+
+.drilldown[data-step="verses"]   .drilldown__section-title:nth-of-type(3),
+.drilldown[data-step="verses"]   .drilldown__grid--verses { display: grid; }
+
+/* Active chips */
+.drilldown__book.is-active,
+.drilldown__chapter.is-active {
+  background: #262626;
+  border-color: #3a3a3a;
+}
+
+/* Verse range visuals */
+.drilldown__verse.is-selected {
+  background: #26203a;
+  border-color: #4b3f7a;
+}
+.drilldown__verse.is-endpoint {
+  background: linear-gradient(180deg, #b44dff 0%, #9a24ff 100%);
+  border-color: transparent;
+  color: #061d2f;
+  font-weight: 800;
+}
+
+/* Loading hint */
+.drilldown__loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 10px 0;
+  color: #bfb4db;
+}
+
+/* Actions row */
+.drilldown__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Hide drilldown when preview is visible */
+.bible--has-preview .drilldown {
+  display: none;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 600px) {
+  .bible {
+    padding: 16px 12px;
+    gap: 12px;
+  }
+  .bible__form.card {
+    width: 100%;
+    border-radius: 28px;
+    padding: 16px 14px;
+  }
+  .drilldown {
+    width: 100%;
+    border-radius: 24px;
+    padding: 14px 12px;
+  }
+  .drilldown__grid--books {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ===== Large desktop ===== */
+@media (min-width: 1200px) {
+  .bible__form.card {
+    width: min(92vw, 960px);
+    padding: 28px 32px;
+  }
+  .drilldown {
+    width: min(92vw, 1024px);
+    padding: 18px 20px;
+  }
 }

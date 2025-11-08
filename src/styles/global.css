@@ -4,8 +4,10 @@
 
 /* Buttons */
 .button { background: #1e1e1e; color: #fff; border: 1px solid #2a2a2a; border-radius: 12px; padding: 14px 16px; cursor: pointer; font-weight: 600; }
-.button:hover { background: #232323; }
-.button--primary { background: var(--brand); color: #062233; border-color: transparent; }
+.button:hover {
+  box-shadow: 0 0 2.5px #00f, 0 0 5px #00f, 0 0 7.5px #00f;
+}
+.button--primary { background: var(--brand); color: darkturquoise; border-color: transparent; }
 .button--danger { background: var(--danger); border-color: transparent; }
 .button--ghost { background: transparent; border: 1px solid #303030; }
 .button--lg { padding: 18px 20px; font-size: 1.05rem; }

@@ -1,25 +1,15 @@
-import { useEffect, useRef } from "react";
+// src/pages/BibleSearch.jsx
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import SearchBar from "../components/SearchBar";
-import BookGrid from "../components/BookGrid";
 import PreviewCard from "../components/PreviewCard";
 import ErrorBanner from "../components/ErrorBanner";
+import BibleDrilldown from "../components/BibleDrilldown";
 import { useBibleLookup } from "../hooks/useBibleLookup";
+import { parseReference } from "../utils/parseReference";
 
 import "../styles/bible.css";
-
-const BOOK_NAMES = [
-  "Génesis","Éxodo","Levítico","Números","Deuteronomio","Josué","Jueces","Rut",
-  "1 Samuel","2 Samuel","1 Reyes","2 Reyes","1 Crónicas","2 Crónicas","Esdras","Nehemías",
-  "Ester","Job","Salmos","Proverbios","Eclesiastés","Cantares","Isaías","Jeremías",
-  "Lamentaciones","Ezequiel","Daniel","Oseas","Joel","Amós","Abdías","Jonás","Miqueas",
-  "Nahúm","Habacuc","Sofonías","Hageo","Zacarías","Malaquías","Mateo","Marcos","Lucas",
-  "Juan","Hechos","Romanos","1 Corintios","2 Corintios","Gálatas","Efesios","Filipenses",
-  "Colosenses","1 Tesalonicenses","2 Tesalonicenses","1 Timoteo","2 Timoteo","Tito",
-  "Filemón","Hebreos","Santiago","1 Pedro","2 Pedro","1 Juan","2 Juan","3 Juan","Judas",
-  "Apocalipsis"
-];
 
 export default function BibleSearch() {
   const navigate = useNavigate();
@@ -31,24 +21,35 @@ export default function BibleSearch() {
     submit, reset
   } = useBibleLookup();
 
+  // force-remount drilldown when user clicks "Volver a selección"
+  const [drilldownKey, setDrilldownKey] = useState(0);
+
+  // prevent drilldown from overwriting the search bar while typing
+  const allowDrilldownSyncRef = useRef(true);
+
   // Auto-submit once when arriving from Home with initial input
   const triedAuto = useRef(false);
   useEffect(() => {
     const initial = location.state?.input;
     if (!initial || triedAuto.current) return;
-
-    triedAuto.current = true;  // prevent re-run
-    setInput(initial);         // show typed value in the field
-    submit(initial);           // ✅ use override so no stale state
+    triedAuto.current = true;
+    setInput(initial);
+    submit(initial);
   }, [location.state, setInput, submit]);
 
-  function handleBookClick(book) {
-    setInput(book + " ");
-  }
+  // Let drilldown “read” what user typed (for prefill)
+  const prefill = useMemo(() => {
+    if (!input) return null;
+    return parseReference(input); // { book, chapter, from, to } | null
+  }, [input]);
 
   function handleSearchSubmit(e) {
     e.preventDefault();
-    submit(); // uses current state value
+    submit();
+  }
+  function handleSearchChange(next) {
+    allowDrilldownSyncRef.current = false;
+    setInput(next);
   }
 
   function sendToPresent() {
@@ -59,34 +60,69 @@ export default function BibleSearch() {
           {
             type: "bible",
             ref: preview.ref,
-            // one verse per slide; adjust later if you want chunking
-            chunks: preview.verses.map(v => [v]),
+            chunks: preview.verses.map(v => [v]), // 1 verse per slide
           },
         ],
       },
     });
   }
 
+  function handleDrilldownChange(sel) {
+    if (!sel?.book || !sel?.chapter) return;
+
+    const ref =
+      sel.from == null && sel.to == null
+        ? `${sel.book} ${sel.chapter}`
+        : sel.to != null && sel.to !== sel.from
+          ? `${sel.book} ${sel.chapter}:${sel.from}-${sel.to}`
+          : `${sel.book} ${sel.chapter}:${sel.from}`;
+
+    if (allowDrilldownSyncRef.current) {
+      setInput(ref);
+    }
+  }
+
+  function handleDrilldownPreview(sel) {
+    if (!sel?.book || !sel?.chapter) return;
+
+    const ref =
+      sel.from == null && sel.to == null
+        ? `${sel.book} ${sel.chapter}`
+        : sel.to != null && sel.to !== sel.from
+          ? `${sel.book} ${sel.chapter}:${sel.from}-${sel.to}`
+          : `${sel.book} ${sel.chapter}:${sel.from}`;
+
+    allowDrilldownSyncRef.current = true; // one-time sync back
+    setInput(ref);
+    submit(ref);
+  }
+
+  function handleBackToSelection() {
+    allowDrilldownSyncRef.current = true;
+    reset();                 // clears preview/submitted/error/input in the hook
+    setDrilldownKey(k => k + 1); // remount drilldown to step=books
+  }
+
   return (
-    <div className="container bible">
-      <h2>Buscar en la Biblia</h2>
+    <div className={`container bible ${preview ? "bible--has-preview" : ""}`}>
+      <h2 className="bible__title">Buscar en la Biblia</h2>
 
       <div className="card bible__form">
-        <label>Referencia (ej. Génesis 1:1)</label>
+        <label className="bible__label">Referencia (ej. Génesis 1:1)</label>
         <SearchBar
           value={input}
-          onChange={setInput}
+          onChange={handleSearchChange}
           onSubmit={handleSearchSubmit}
           placeholder="Escribe o selecciona un libro"
           className="search-bar"
           inputClassName="search-bar__input"
           autoFocus
+          onFocus={() => { allowDrilldownSyncRef.current = false; }}
         />
         <button
-          className="button button--primary"
+          className="button button--primary bible__submit"
           onClick={() => submit()}
           disabled={loading}
-          style={{ marginTop: 8 }}
         >
           {loading ? "Buscando…" : "Buscar"}
         </button>
@@ -94,17 +130,23 @@ export default function BibleSearch() {
 
       <ErrorBanner message={error} />
 
-      {!submitted && (
-        <BookGrid books={BOOK_NAMES} onSelect={handleBookClick} />
-      )}
+      {/* Drilldown area — auto-hidden via CSS when preview exists */}
+      <BibleDrilldown
+        key={drilldownKey}
+        prefill={prefill}
+        onChange={(sel) => {
+          allowDrilldownSyncRef.current = true;
+          handleDrilldownChange(sel);
+        }}
+        onPreview={handleDrilldownPreview}
+      />
 
       {submitted && (
         <button
-          className="button button--ghost"
-          onClick={reset}
-          style={{ marginTop: 16 }}
+          className="button button--ghost bible__back"
+          onClick={handleBackToSelection}
         >
-          Volver a la selección de libros
+          Volver a la selección
         </button>
       )}
 
