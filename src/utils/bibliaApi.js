@@ -1,4 +1,4 @@
-const BASE = "http://localhost:5174/api";
+const BASE = import.meta.env.VITE_API_BASE || "/api";
 
 /**
  * Converts book name like "1 Juan" or "Éxodo" to slug like "1-juan" or "exodo"
