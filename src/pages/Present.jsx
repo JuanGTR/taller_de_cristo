@@ -3,6 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toggleFullscreen } from '../utils/fullscreen';
 import { useSettings } from '../context/SettingsContext';
 import styles from '../styles/Present.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGear } from '@fortawesome/free-solid-svg-icons'; // solid set
+import { faBookBible } from '@fortawesome/free-solid-svg-icons'; // solid set
+
 
 function chunkByCount(versesArray, count = 1) {
   const out = [];
@@ -174,7 +178,7 @@ export default function Present() {
 
           {settings.showDock && (
             <div className={`${styles.present__dock} ${dockVisible ? styles.isVisible : styles.isHidden}`}>
-              <button className={styles.dock__button} onClick={() => navigate('/bible')}>Volver</button>
+              <button className={styles.dock__button} onClick={() => navigate('/bible')}><FontAwesomeIcon icon={faBookBible} /></button>
               <button className={styles.dock__button} onClick={goBack}>←</button>
               <button className={styles.dock__button} onClick={toggleFullscreen}>⛶</button>
               <div className={styles.dock__ref}>
@@ -183,7 +187,7 @@ export default function Present() {
               </div>
               <div className={styles.dock__actions}>
                 <button className={styles.dock__button} onClick={goNext}>→</button>
-                <button className={styles.dock__button} onClick={() => navigate('/operator')}>Ajustes</button>
+                <button className={styles.dock__button} onClick={() => navigate('/operator')}><FontAwesomeIcon icon={faGear} /></button>
               </div>
             </div>
           )}
