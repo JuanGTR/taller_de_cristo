@@ -1,70 +1,76 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-const STORAGE_KEY = "altarpro.settings.v1";
+const Ctx = createContext(null);
 
-const DEFAULTS = {
-  text: {
-    // CSS var friendly strings
-    fontSize: "clamp(1.6rem, 4vw, 5rem)",
-    lineHeight: 1.24,
-    maxWidth: "80ch",
-    weight: 600,
-  },
-  verses: {
-    showNumbers: true,
-    showReference: true,
-    chunkMode: "one", // "one" | "fit"
-    fitTarget: 340,   // rough chars target for fit mode
-  },
-  dock: {
-    autoHide: true,
-    timeout: 2200,
-  },
-  theme: {
-    preset: "dark",
-    textColor: "#ffffff",
-    accent: "#88ccff",
-    bg: "#000000",
-  }
+// Defaults
+const DEFAULT_SETTINGS = {
+  fontRem: 2.2,
+  lineHeight: 1.4,
+  maxWidthPx: 1000,
+  versesPerSlide: 1,
+  showVerseNumbers: true,
+  showRef: true,
+  showDock: true,
+  dockAutoHideSec: 6,
+  // Background controls
+  backgroundUrl: null,   // data URL or http(s)
+  backgroundDim: 0.35,   // 0..0.9 recommended
+  backdropBlurPx: 8,     // 0..24ish
+  textColor: "light",    // "light" (white text) or "dark" (black text)
 };
 
-const SettingsContext = createContext(null);
-
 export function SettingsProvider({ children }) {
-  const [settings, setSettings] = useState(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? { ...DEFAULTS, ...JSON.parse(raw) } : DEFAULTS;
-    } catch {
-      return DEFAULTS;
-    }
-  });
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [deck, setDeck] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // persist
+  // Hydrate
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch {}
+    try {
+      const s = localStorage.getItem("altarpro.settings");
+      if (s) setSettings(prev => ({ ...prev, ...JSON.parse(s) }));
+
+      const d = localStorage.getItem("altarpro.deck");
+      if (d) setDeck(JSON.parse(d));
+
+      const i = localStorage.getItem("altarpro.index");
+      if (i) setCurrentIndex(Number(i));
+    } catch {}
+  }, []);
+
+  // Persist
+  useEffect(() => {
+    localStorage.setItem("altarpro.settings", JSON.stringify(settings));
   }, [settings]);
 
-  const api = useMemo(() => ({
-    settings,
-    setText: (partial) =>
-      setSettings(s => ({ ...s, text: { ...s.text, ...partial } })),
-    setVerses: (partial) =>
-      setSettings(s => ({ ...s, verses: { ...s.verses, ...partial } })),
-    setDock: (partial) =>
-      setSettings(s => ({ ...s, dock: { ...s.dock, ...partial } })),
-    setTheme: (partial) =>
-      setSettings(s => ({ ...s, theme: { ...s.theme, ...partial } })),
-    reset: () => setSettings(DEFAULTS),
-  }), [settings]);
+  useEffect(() => {
+    if (deck) localStorage.setItem("altarpro.deck", JSON.stringify(deck));
+    else localStorage.removeItem("altarpro.deck");
+  }, [deck]);
 
-  return (
-    <SettingsContext.Provider value={api}>{children}</SettingsContext.Provider>
-  );
+  useEffect(() => {
+    localStorage.setItem("altarpro.index", String(currentIndex));
+  }, [currentIndex]);
+
+  function updateSetting(key, value) {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  }
+
+  function updateSettings(patch) {
+    setSettings(prev => ({ ...prev, ...patch }));
+  }
+
+  const value = useMemo(() => ({
+    settings, updateSetting, updateSettings,
+    deck, setDeck,
+    currentIndex, setCurrentIndex,
+  }), [settings, deck, currentIndex]);
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
 export function useSettings() {
-  const ctx = useContext(SettingsContext);
-  if (!ctx) throw new Error("useSettings must be used within SettingsProvider");
+  const ctx = useContext(Ctx);
+  if (!ctx) throw new Error("useSettings must be used inside SettingsProvider");
   return ctx;
 }

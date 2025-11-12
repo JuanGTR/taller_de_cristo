@@ -8,12 +8,14 @@ import ErrorBanner from "../components/ErrorBanner";
 import BibleDrilldown from "../components/BibleDrilldown";
 import { useBibleLookup } from "../hooks/useBibleLookup";
 import { parseReference } from "../utils/parseReference";
+import { useSettings } from "../context/SettingsContext";
 
 import "../styles/bible.css";
 
 export default function BibleSearch() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { setDeck } = useSettings();
 
   const {
     input, setInput,
@@ -32,9 +34,9 @@ export default function BibleSearch() {
   useEffect(() => {
     const initial = location.state?.input;
     if (!initial || triedAuto.current) return;
-    triedAuto.current = true;
-    setInput(initial);
-    submit(initial);
+    triedAuto.current = true;     // prevent re-run on rerenders
+    setInput(initial);            // show typed value in field
+    submit(initial);              // submit using override to avoid stale state
   }, [location.state, setInput, submit]);
 
   // Let drilldown “read” what user typed (for prefill)
@@ -45,26 +47,13 @@ export default function BibleSearch() {
 
   function handleSearchSubmit(e) {
     e.preventDefault();
-    submit();
-  }
-  function handleSearchChange(next) {
-    allowDrilldownSyncRef.current = false;
-    setInput(next);
+    submit(); // uses current state value
   }
 
-  function sendToPresent() {
-    if (!preview) return;
-    navigate("/present", {
-      state: {
-        deck: [
-          {
-            type: "bible",
-            ref: preview.ref,
-            chunks: preview.verses.map(v => [v]), // 1 verse per slide
-          },
-        ],
-      },
-    });
+  function handleSearchChange(next) {
+    // User is actively typing: prevent drilldown from pushing into the field
+    allowDrilldownSyncRef.current = false;
+    setInput(next);
   }
 
   function handleDrilldownChange(sel) {
@@ -92,15 +81,36 @@ export default function BibleSearch() {
           ? `${sel.book} ${sel.chapter}:${sel.from}-${sel.to}`
           : `${sel.book} ${sel.chapter}:${sel.from}`;
 
-    allowDrilldownSyncRef.current = true; // one-time sync back
+    // one-time sync back into the field, then fetch
+    allowDrilldownSyncRef.current = true;
     setInput(ref);
     submit(ref);
   }
 
   function handleBackToSelection() {
     allowDrilldownSyncRef.current = true;
-    reset();                 // clears preview/submitted/error/input in the hook
-    setDrilldownKey(k => k + 1); // remount drilldown to step=books
+    reset();                       // clears preview/submitted/error/input in the hook
+    setDrilldownKey(k => k + 1);   // remount drilldown to step=books
+  }
+
+  function sendToPresent() {
+    if (!preview) return;
+
+    // Save the current deck to Context so Present & Operator stay in sync
+    const deck = [
+      {
+        type: "bible",
+        ref: preview.ref,
+        // 1 verse per slide by default; Operator can change chunking later
+        chunks: preview.verses.map(v => [v]),
+        // keep full verses so Present can re-chunk when user changes settings
+        verses: preview.verses,
+      }
+    ];
+    setDeck(deck);
+
+    // Navigate to Present (it will read from Context/localStorage)
+    navigate("/present");
   }
 
   return (
@@ -135,6 +145,7 @@ export default function BibleSearch() {
         key={drilldownKey}
         prefill={prefill}
         onChange={(sel) => {
+          // when drilldown changes because of clicks (not typing), allow a one-time sync
           allowDrilldownSyncRef.current = true;
           handleDrilldownChange(sel);
         }}

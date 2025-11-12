@@ -1,7 +1,7 @@
 .present {
   position: fixed;
   inset: 0;
-  background-color: #000;
+  background: #000;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -9,140 +9,141 @@
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   padding: 24px 16px 96px;
   box-sizing: border-box;
-  font-size: clamp(1.2rem, 2.5vw, 2rem);
-  line-height: 1.6;
+
+  /* dynamic vars controlled by settings */
+  --slide-font-size: 2.2rem;
+  --slide-line-height: 1.35;
+  --slide-max-width: 1100px;
 }
 
+/* BG image layer */
+.present__bg {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+/* Dim overlay above BG */
+.present__dim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Verse container */
 .present__verse {
+  position: relative;
+  z-index: 2;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: clamp(12px, 2vh, 24px);
+  display: grid;
+  place-items: center;
   text-align: center;
-  padding: 0 1rem;
+}
+
+/* Optional blurred panel behind text */
+.present__panel {
+  max-width: var(--slide-max-width);
+  margin: 0 auto;
+  padding: 18px clamp(12px, 2vw, 28px);
+  border-radius: 20px;
+  backdrop-filter: blur(var(--panel-blur, 0px));
+  -webkit-backdrop-filter: blur(var(--panel-blur, 0px));
+  background: var(--panel-bg, transparent);
 }
 
 .present__line {
+  font-size: var(--slide-font-size);
+  line-height: var(--slide-line-height);
   font-weight: 400;
-  color: #ffffff;
+  margin: 8px 0;
+  word-break: break-word;
   text-wrap: pretty;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  max-width: 100%;
-  font-size: clamp(1.2rem, 4vw, 2.4rem);
 }
 
 .present__line strong {
-  font-weight: 600;
+  font-weight: 700;
   margin-right: 0.25em;
-  color: #88ccff;
+  color: var(--verse-num, #88ccff);
 }
 
+/* Text color modes */
+.present--light {
+  color: #fff;
+  --panel-bg: rgba(0,0,0,0.25);
+  --verse-num: #a6d2ff;
+}
+.present--dark {
+  color: #111;
+  --panel-bg: rgba(255,255,255,0.25);
+  --verse-num: #1b4a80;
+}
+
+/* Dock */
 .present__dock {
   position: fixed;
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(20, 20, 20, 0.85);
-  border-radius: 50px;
+  border-radius: 24px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  gap: 16px;
   padding: 12px 20px;
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
-  flex-wrap: nowrap;
-  max-width: 90%;
-  overflow-x: auto;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 3;
 }
 
 .dock__button {
   background: #1e1e1e;
   border: none;
   color: #fff;
-  font-size: clamp(1rem, 3vw, 1.3rem);
-  padding: 10px 14px;
-  border-radius: 20px;
-  white-space: nowrap;
+  font-size: 1.1rem;
+  padding: 8px 14px;
+  border-radius: 14px;
   transition: background 0.2s;
-  flex-shrink: 0;
 }
 
-.dock__button:hover {
-  background: #333;
+.dock__button:hover { background: #333; }
+
+.dock__ref { color: #ccc; font-size: 0.95rem; }
+
+/* Hide/show dock */
+.isHidden { opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+.isVisible { opacity: 1; transition: opacity .15s ease; }
+
+/* Empty/waiting */
+.present__empty {
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  color: #9ab4ff;
 }
 
-.dock__ref {
-  color: #ccc;
-  font-size: clamp(0.8rem, 2.5vw, 1rem);
-  white-space: nowrap;
+/* Blackout */
+.present--black {
+  background: #000 !important;
+}
+.present--black .present__bg,
+.present--black .present__dim,
+.present--black .present__verse,
+.present--black .present__dock {
+  display: none !important;
 }
 
-/* === Media Queries === */
-
+/* Responsive tweaks */
 @media (max-width: 600px) {
-  .present {
-    padding: 16px 12px 88px;
-    font-size: 1.1rem;
-  }
-
+  .present { padding: 16px 12px 88px; }
+  .present__line { font-size: clamp(1.2rem, 6vw, 2rem); }
   .present__dock {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    gap: 8px;
+    gap: 10px;
     padding: 10px 16px;
-    border-radius: 40px;
-    width: calc(100% - 32px);
-    max-width: 480px;
-  }
-
-  .dock__button {
-    flex: 0 1 auto;
-    font-size: 1.1rem;
-    padding: 8px 10px;
-    min-width: 40px;
-  }
-
-  .dock__ref {
-    font-size: 0.8rem;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-@media (min-width: 601px) and (max-width: 1199px) {
-  .present {
-    padding: 24px 20px 96px;
-    font-size: 1.3rem;
-  }
-
-  .present__line {
-    max-width: 90%;
-  }
-
-  .dock__ref {
-    font-size: 0.95rem;
-  }
-}
-
-@media (min-width: 1200px) {
-  .present {
-    padding: 48px 64px 128px;
-    font-size: 1.6rem;
-  }
-
-  .present__line {
-    max-width: 80%;
-  }
-
-  .dock__ref {
-    font-size: 1.1rem;
+    border-radius: 18px;
   }
 }
