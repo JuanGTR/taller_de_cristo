@@ -18,6 +18,7 @@
 .home__header {
   display: flex;
   align-items: center;
+  gap: 16px;
 }
 
 .home__logo {
@@ -60,6 +61,12 @@
 }
 
 /* SEARCH */
+.home__searchForm {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .home__searchbar {
   width: min(100%, 760px);
   padding: 14px 18px;
@@ -118,7 +125,9 @@
   text-wrap: pretty;
 }
 
-.home__intro p { margin: .4rem 0; }
+.home__intro p {
+  margin: .4rem 0;
+}
 
 .home__tip {
   font-size: clamp(0.8rem, 1vw, 0.95rem);
@@ -128,76 +137,84 @@
 }
 
 /* ===== iPhone-style dock (small screens) ===== */
+/* ===== Small screens (clean stacked layout) ===== */
 @media (max-width: 600px) {
   .home {
-    justify-content: space-between;  /* push card to bottom */
-    padding: 16px 12px 0;
-    gap: 10px;
+    justify-content: flex-start;
+    padding: 20px 12px 24px;
+    gap: 16px;
   }
 
   .home__header {
     flex-direction: column;
-    gap: 10px;
-    margin-top: 6px;
+    gap: 8px;
+    margin-top: 4px;
+    text-align: center;
   }
 
   .home__card {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
+    position: static;
     width: 100%;
-    border-radius: 28px 28px 0 0;
-    padding: 18px 14px 20px;
-    margin: 0;
+    border-radius: 24px;
+    padding: 20px 14px 22px;
+    margin-top: 8px;
     background: linear-gradient(135deg, #2a0055, #3b0073);
-    box-shadow: 0 -10px 30px rgba(0,0,0,.55);
-    backdrop-filter: saturate(140%) blur(8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,.55);
   }
 
-  /* Search above the “dock” buttons */
+  .home__searchForm {
+    justify-content: center;
+  }
+
   .home__searchbar {
-    width: 92%;
-    margin: 2px auto 6px;
+    width: 100%;
+    margin: 0;
     font-size: 1rem;
   }
 
-  /* Dock row */
   .home__modes {
     width: 100%;
-    justify-content: space-between;
+    justify-content: center;
     gap: 10px;
-    padding: 0 10px;
+    padding: 0;
   }
 
   .home__button {
-    flex: 1;
+    flex: 1 1 30%;
     min-width: 0;
-    padding: 12px 10px;
+    padding: 11px 10px;
     border-radius: 16px;
   }
 
-  /* Tighter intro & tip so no scroll needed */
   .home__intro {
-    width: 92%;
-    font-size: .95rem;
-    line-height: 1.55;
+    width: 100%;
+    font-size: 0.94rem;
+    line-height: 1.6;
   }
 
   .home__tip {
-    width: 92%;
-    font-size: .85rem;
-    margin-top: 2px;
+    width: 100%;
+    font-size: 0.85rem;
+    margin-top: 4px;
   }
 }
 
 /* ===== Large desktop polish ===== */
 @media (min-width: 1200px) {
-  .home { gap: 20px; }
+  .home {
+    gap: 20px;
+  }
 
   .home__card {
     width: min(92vw, 960px);
     padding: 40px 44px;
   }
 
-  .home__intro { font-size: 1.08rem; }
-  .home__tip   { font-size: 1rem; }
+  .home__intro {
+    font-size: 1.08rem;
+  }
+
+  .home__tip {
+    font-size: 1rem;
+  }
 }

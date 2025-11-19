@@ -97,7 +97,16 @@ export default function Operator() {
         />
 
         {/* content panel with optional backdrop blur */}
-        <div style={{ position: 'relative', zIndex: 1, height: '100%', display: 'grid', placeItems: 'center', padding: 24 }}>
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            height: '100%',
+            display: 'grid',
+            placeItems: 'center',
+            padding: 24
+          }}
+        >
           {!slide ? (
             <div style={{ color: '#9ab4ff', fontWeight: 600 }}>Esperando presentación…</div>
           ) : (
@@ -122,13 +131,17 @@ export default function Operator() {
                 {settings.showRef && first?.ref && (
                   <span className="operator__chip">{first.ref}</span>
                 )}
-                <span className="operator__chip operator__chip--muted">{safeIndex + 1}/{total}</span>
+                <span className="operator__chip operator__chip--muted">
+                  {safeIndex + 1}/{total}
+                </span>
               </div>
 
               {slide.map(v => (
                 <div key={v.n} className="operator__verse" style={{ margin: '6px 0' }}>
                   {settings.showVerseNumbers && (
-                    <strong className="operator__num" style={{ marginRight: 8 }}>{v.n}</strong>
+                    <strong className="operator__num" style={{ marginRight: 8 }}>
+                      {v.n}
+                    </strong>
                   )}
                   {v.t}
                 </div>
@@ -139,16 +152,33 @@ export default function Operator() {
       </div>
 
       {/* Controls */}
-      <div className="card operator__transport" style={{ display: 'grid', gap: 12 }}>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button className="button" onClick={() => setCurrentIndex(i => Math.max(0, i - 1))}>◀ Anterior</button>
-          <button className="button button--primary" onClick={() => setCurrentIndex(i => Math.min((total - 1), i + 1))}>Siguiente ▶</button>
-          <button className="button button--ghost" onClick={() => navigate('/present')}>Abrir Presentación</button>
+      <div className="card operator__transport">
+        {/* Navigation row (remote-style) */}
+        <div className="operator__navRow">
+          <button
+            className="button"
+            onClick={() => setCurrentIndex(i => Math.max(0, i - 1))}
+          >
+            ◀ Anterior
+          </button>
+          <button
+            className="button button--primary"
+            onClick={() => setCurrentIndex(i => Math.min((total - 1), i + 1))}
+          >
+            Siguiente ▶
+          </button>
+          <button
+            className="button button--ghost"
+            onClick={() => navigate('/present')}
+          >
+            Abrir Presentación
+          </button>
         </div>
 
-        <div style={{ display: 'grid', gap: 12 }}>
-          <fieldset style={{ border: '1px solid #2a2a2a', borderRadius: 12, padding: 12 }}>
-            <legend style={{ padding: '0 6px' }}>Tipografía</legend>
+        {/* Settings sections */}
+        <div className="operator__sections">
+          <fieldset>
+            <legend>Tipografía</legend>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <label style={{ minWidth: 140 }}>Tamaño de letra</label>
@@ -172,8 +202,8 @@ export default function Operator() {
             </div>
           </fieldset>
 
-          <fieldset style={{ border: '1px solid #2a2a2a', borderRadius: 12, padding: 12 }}>
-            <legend style={{ padding: '0 6px' }}>Diapositivas</legend>
+          <fieldset>
+            <legend>Diapositivas</legend>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <label style={{ minWidth: 140 }}>Versos por slide</label>
@@ -183,14 +213,28 @@ export default function Operator() {
             </div>
 
             <div style={{ display: 'flex', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
-              <label><input type="checkbox" checked={!!settings.showVerseNumbers} onChange={(e)=>updateSetting('showVerseNumbers', e.target.checked)} /> Mostrar # de verso (N)</label>
-              <label><input type="checkbox" checked={!!settings.showRef} onChange={(e)=>updateSetting('showRef', e.target.checked)} /> Mostrar referencia (R)</label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={!!settings.showVerseNumbers}
+                  onChange={(e)=>updateSetting('showVerseNumbers', e.target.checked)}
+                />{" "}
+                Mostrar # de verso (N)
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={!!settings.showRef}
+                  onChange={(e)=>updateSetting('showRef', e.target.checked)}
+                />{" "}
+                Mostrar referencia (R)
+              </label>
             </div>
           </fieldset>
 
           {/* Background & panel style controls */}
-          <fieldset style={{ border: '1px solid #2a2a2a', borderRadius: 12, padding: 12 }}>
-            <legend style={{ padding: '0 6px' }}>Fondo</legend>
+          <fieldset>
+            <legend>Fondo</legend>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <label style={{ minWidth: 140 }}>Imagen de fondo</label>
@@ -213,8 +257,8 @@ export default function Operator() {
             </div>
           </fieldset>
 
-          <fieldset style={{ border: '1px solid #2a2a2a', borderRadius: 12, padding: 12 }}>
-            <legend style={{ padding: '0 6px' }}>Panel / Color</legend>
+          <fieldset>
+            <legend>Panel / Color</legend>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <label style={{ minWidth: 140 }}>Desenfoque panel</label>
@@ -236,8 +280,8 @@ export default function Operator() {
             </div>
           </fieldset>
 
-          <fieldset style={{ border: '1px solid #2a2a2a', borderRadius: 12, padding: 12 }}>
-            <legend style={{ padding: '0 6px' }}>Dock</legend>
+          <fieldset>
+            <legend>Dock</legend>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <label style={{ minWidth: 140 }}>Mostrar dock</label>
               <input

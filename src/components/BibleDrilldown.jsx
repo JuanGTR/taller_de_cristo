@@ -243,7 +243,7 @@ export default function BibleDrilldown({
       </div>
 
       {/* BOOKS */}
-      <div className="drilldown__section-title">Capitulos</div>
+      <div className="drilldown__section-title">Libros</div>
       <div className="drilldown__grid drilldown__grid--books">
         {activeBooks.map(b => (
           <button

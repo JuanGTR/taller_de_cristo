@@ -6,26 +6,26 @@
   min-height: 100svh;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   display: grid;
-  gap: clamp(14px, 2vh, 22px);
-  padding: clamp(24px, 4vh, 56px) 20px;
+  gap: clamp(10px, 2vh, 18px);
+  padding: clamp(20px, 3vh, 40px) 20px;
   box-sizing: border-box;
 }
 
 .bible__title {
-  font-size: clamp(1.4rem, 3.6vw, 2rem);
+  font-size: clamp(1.4rem, 3.2vw, 1.9rem);
   font-weight: 800;
-  margin: 0;
+  margin: 0 0 4px;
   display: flex;
   justify-content: center;
 }
 
 .bible__form.card {
   background: linear-gradient(135deg, #2a0055 0%, #470089 55%, #7a0dd6 100%);
-  border-radius: 22px;
+  border-radius: 20px;
   box-shadow: 0 18px 48px rgba(0,0,0,.55);
-  padding: clamp(18px, 2.6vh, 26px) clamp(16px, 2.6vw, 28px);
+  padding: clamp(16px, 2.4vh, 22px) clamp(14px, 2.4vw, 24px);
   display: grid;
-  gap: 10px;
+  gap: 8px;
   width: min(92vw, 920px);
   justify-self: center;
 }
@@ -34,22 +34,37 @@
   font-weight: 700;
   color: #f4eaff;
   opacity: .95;
+  font-size: 0.95rem;
 }
 
-.search-bar { display: flex; gap: 8px; width: 100%; }
+/* Search bar wraps input + suggestions vertically */
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  position: relative;
+}
+
 .search-bar__input {
   flex: 1;
   background: #fff;
   color: #111;
   border: none;
   border-radius: 30px;
-  padding: 14px 18px;
-  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  padding: 12px 16px;
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
   outline: none;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
 }
 
-.bible__submit { margin-top: 6px; width: 100%; }
+/* submit button: not full-width on desktop */
+.bible__submit {
+  margin-top: 4px;
+  justify-self: flex-end;
+  width: auto;
+  min-width: 170px;
+}
 
 /* ========== Drilldown (step-by-step) ========== */
 .drilldown {
@@ -57,39 +72,45 @@
   justify-self: center;
   background: #0b0b0b;
   border: 1px solid #1f1f1f;
-  border-radius: 18px;
-  padding: clamp(14px, 2vh, 18px);
+  border-radius: 16px;
+  padding: clamp(12px, 2vh, 16px);
   box-shadow: 0 12px 30px rgba(0,0,0,.5);
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 /* Tabs (OT/NT + Back) */
 .drilldown__tabs {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
+
 .drilldown__tab {
   background: #141414;
   border: 1px solid #232323;
-  border-radius: 14px;
-  padding: 10px 14px;
+  border-radius: 12px;
+  padding: 8px 12px;
   font-weight: 700;
+  font-size: 0.9rem;
 }
+
 .drilldown__tab.is-active {
   background: linear-gradient(180deg, #b44dff 0%, #9a24ff 100%);
   border-color: transparent;
   color: #061d2f;
 }
+
 .drilldown__spacer { flex: 1; }
+
 .drilldown__back {
   background: #171717;
   border: 1px solid #2a2a2a;
-  border-radius: 14px;
-  padding: 10px 14px;
+  border-radius: 12px;
+  padding: 8px 12px;
   color: #fff;
   opacity: .95;
+  font-size: 0.9rem;
 }
 .drilldown__back:disabled {
   opacity: .5;
@@ -102,40 +123,37 @@
   font-weight: 700;
   letter-spacing: .2px;
   opacity: .9;
+  font-size: 0.9rem;
 }
 
 /* Grids */
 .drilldown__grid {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 .drilldown__grid--books {
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
 }
 .drilldown__grid--chapters {
-  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
 }
 .drilldown__grid--verses {
-  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
 }
 
-/* One step at a time */
-.drilldown__grid--books,
-.drilldown__grid--chapters,
-.drilldown__grid--verses,
-.drilldown__section-title {
-  display: none;
+/* Chip styles (smaller, less chunky) */
+.drilldown__book,
+.drilldown__chapter,
+.drilldown__verse {
+  background: #121212;
+  border: 1px solid #262626;
+  border-radius: 10px;
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  text-align: center;
+  cursor: pointer;
 }
-.drilldown[data-step="books"]    .drilldown__section-title:nth-of-type(1),
-.drilldown[data-step="books"]    .drilldown__grid--books { display: grid; }
 
-.drilldown[data-step="chapters"] .drilldown__section-title:nth-of-type(2),
-.drilldown[data-step="chapters"] .drilldown__grid--chapters { display: grid; }
-
-.drilldown[data-step="verses"]   .drilldown__section-title:nth-of-type(3),
-.drilldown[data-step="verses"]   .drilldown__grid--verses { display: grid; }
-
-/* Active chips */
 .drilldown__book.is-active,
 .drilldown__chapter.is-active {
   background: #262626;
@@ -154,18 +172,46 @@
   font-weight: 800;
 }
 
+/* Show only one step at a time */
+.drilldown__grid--books,
+.drilldown__grid--chapters,
+.drilldown__grid--verses,
+.drilldown__section-title {
+  display: none;
+}
+
+/* Step: books */
+.drilldown[data-step="books"] .drilldown__section-title:nth-of-type(1),
+.drilldown[data-step="books"] .drilldown__grid--books {
+  display: grid;
+}
+
+/* Step: chapters */
+.drilldown[data-step="chapters"] .drilldown__section-title:nth-of-type(2),
+.drilldown[data-step="chapters"] .drilldown__grid--chapters {
+  display: grid;
+}
+
+/* Step: verses */
+.drilldown[data-step="verses"] .drilldown__section-title:nth-of-type(3),
+.drilldown[data-step="verses"] .drilldown__grid--verses {
+  display: grid;
+}
+
+
 /* Loading hint */
 .drilldown__loading {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 10px 0;
+  padding: 8px 0;
   color: #bfb4db;
+  font-size: 0.9rem;
 }
 
 /* Actions row */
 .drilldown__actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: flex-end;
 }
 
@@ -177,21 +223,43 @@
 /* ===== Mobile ===== */
 @media (max-width: 600px) {
   .bible {
-    padding: 16px 12px;
-    gap: 12px;
+    padding: 16px 12px 20px;
+    gap: 10px;
   }
+
   .bible__form.card {
     width: 100%;
-    border-radius: 28px;
-    padding: 16px 14px;
+    border-radius: 20px;
+    padding: 14px 12px 16px;
   }
+
+  .bible__title {
+    font-size: 1.4rem;
+  }
+
+  /* submit full-width on phones for easy tap */
+  .bible__submit {
+    width: 100%;
+    min-width: 0;
+    justify-self: stretch;
+  }
+
   .drilldown {
     width: 100%;
-    border-radius: 24px;
-    padding: 14px 12px;
+    border-radius: 20px;
+    padding: 12px 10px;
+    gap: 8px;
   }
+
   .drilldown__grid--books {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .drilldown__book,
+  .drilldown__chapter,
+  .drilldown__verse {
+    padding: 6px 6px;
+    font-size: 0.85rem;
   }
 }
 
@@ -199,10 +267,10 @@
 @media (min-width: 1200px) {
   .bible__form.card {
     width: min(92vw, 960px);
-    padding: 28px 32px;
+    padding: 24px 28px;
   }
   .drilldown {
     width: min(92vw, 1024px);
-    padding: 18px 20px;
+    padding: 16px 18px;
   }
 }

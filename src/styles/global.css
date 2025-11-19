@@ -1,58 +1,441 @@
 /* ========== Base & Theme ========== */
-.card { background: var(--panel); border-radius: var(--radius); padding: 16px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+.card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.25);
+}
 
+/* ===== App shell + Header ===== */
+.app {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
 
-/* Buttons */
-.button { background: #1e1e1e; color: #fff; border: 1px solid #2a2a2a; border-radius: 12px; padding: 14px 16px; cursor: pointer; font-weight: 600; }
+.app__header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.app__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.app__logo {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+.app__brand-text {
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: #f6f0ff;
+  opacity: 0.9;
+}
+
+.app__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app__nav-link {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  color: #e5ddff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.app__nav-link:hover {
+  border-color: #3b2a80;
+  background: rgba(154, 36, 255, 0.14);
+}
+
+.app__nav-link.is-active {
+  background: linear-gradient(180deg, #b44dff 0%, #9a24ff 100%);
+  border-color: transparent;
+  color: #061d2f;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Main content area */
+.app__main {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Mobile tweaks for header + main */
+@media (max-width: 600px) {
+  .app__header {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .app__brand-text {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+  }
+
+  .app__nav-link {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .app__main {
+    padding: 16px 12px 24px;
+    max-width: 100%;
+  }
+
+  .card {
+    padding: 14px 12px;
+    border-radius: 16px;
+  }
+}
+
+/* ========== Buttons ========== */
+.button {
+  background: #1e1e1e;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
 .button:hover {
   box-shadow: 0 0 2.5px #00f, 0 0 5px #00f, 0 0 7.5px #00f;
 }
-.button--primary { background: var(--brand); color: darkturquoise; border-color: transparent; }
-.button--danger { background: var(--danger); border-color: transparent; }
-.button--ghost { background: transparent; border: 1px solid #303030; }
-.button--lg { padding: 18px 20px; font-size: 1.05rem; }
-
+.button--primary {
+  background: var(--brand);
+  color: darkturquoise;
+  border-color: transparent;
+}
+.button--danger {
+  background: var(--danger);
+  border-color: transparent;
+}
+.button--ghost {
+  background: transparent;
+  border: 1px solid #303030;
+}
+.button--lg {
+  padding: 18px 20px;
+  font-size: 1.05rem;
+}
 
 /* Grid responsiveness */
-.grid { display: grid; gap: 16px; }
-@media (max-width: 600px) { .grid--2 { grid-template-columns: 1fr; } }
-@media (min-width: 601px) and (max-width: 1024px) { .grid--2 { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1025px) { .grid--2 { grid-template-columns: 1fr 1fr; } }
+.grid {
+  display: grid;
+  gap: 16px;
+}
+@media (max-width: 600px) {
+  .grid--2 {
+    grid-template-columns: 1fr;
+  }
+}
+@media (min-width: 601px) and (max-width: 1024px) {
+  .grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 1025px) {
+  .grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
 
+/* ========== Home ========== */
+.home {
+  display: grid;
+  gap: 20px;
+}
+.home__title {
+  margin: 0 0 6px;
+  font-size: clamp(1.5rem, 2vw, 2rem);
+}
+.home__search {
+  display: grid;
+  gap: 12px;
+}
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+.search-bar__input {
+  flex: 1;
+  background: #0f0f0f;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 14px 12px;
+}
+.home__modes {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 600px) {
+  .home__modes {
+    grid-template-columns: 1fr;
+  }
 
-/* Home */
-.home { display: grid; gap: 20px; }
-.home__title { margin: 0 0 6px; font-size: clamp(1.5rem, 2vw, 2rem); }
-.home__search { display: grid; gap: 12px; }
-.search-bar { display: flex; gap: 8px; }
-.search-bar__input { flex: 1; background: #0f0f0f; color: #fff; border: 1px solid #2a2a2a; border-radius: 10px; padding: 14px 12px; }
-.home__modes { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
-@media (max-width: 600px) { .home__modes { grid-template-columns: 1fr; } }
+  .home__title {
+    text-align: center;
+    font-size: 1.4rem;
+  }
+}
 
+/* Autofill suggestions under the search input */
+.search-bar__suggestions {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 4px;
+  background: #0b0b0b;
+  border-radius: 10px;
+  border: 1px solid #232323;
+  max-height: 160px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  box-shadow: 0 10px 22px rgba(0,0,0,.55);
+  z-index: 5;
+}
 
-/* Bible Search */
-.bible { display: grid; gap: 16px; }
-.bible__form { display: grid; gap: 12px; }
-.bible__preview { display: grid; gap: 10px; }
-.preview { background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 12px; padding: 16px; }
-.preview__ref { color: var(--accent); font-weight: 700; margin-bottom: 6px; }
-.preview__text { font-size: 1.05rem; line-height: 1.5; color: #efefef; }
+.search-bar__suggestion {
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #f4eaff;
+}
+.search-bar__suggestion:hover {
+  background: #191919;
+}
 
+/* ========== Bible Search ========== */
+.bible {
+  display: grid;
+  gap: 16px;
+}
+.bible__title {
+  margin: 0 0 8px;
+}
+.bible__form {
+  display: grid;
+  gap: 10px;
+}
+.bible__preview {
+  display: grid;
+  gap: 10px;
+}
+.bible__label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #f4eaff;
+  opacity: 0.9;
+}
 
-/* Operator */
-.operator { display: grid; gap: 16px; grid-template-columns: 2fr 1fr; }
-@media (max-width: 1024px) { .operator { grid-template-columns: 1fr; } }
-.operator__preview { aspect-ratio: 16 / 9; background: #000; border-radius: 12px; display: grid; place-items: center; color: #fff; padding: 24px; }
-.operator__transport { display: flex; flex-wrap: wrap; gap: 10px; }
+/* Loading state below search bar */
+.bible__loading {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #bfb4db;
+}
 
+.bible__loading-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid #9a24ff;
+  border-top-color: transparent;
+  animation: spin 0.65s linear infinite;
+}
 
-/* Presenter */
-.present { position: fixed; inset: 0; background: #000; color: #fff; display: grid; place-items: center; padding: 4vmin; }
-.slide { width: 100%; max-width: 1600px; aspect-ratio: 16/9; background: #000; display: grid; grid-template-rows: 1fr auto; }
-.slide__text { font-size: clamp(1.6rem, 4vw, 5rem); line-height: 1.22; align-self: center; }
-.slide__ref { text-align: right; opacity: .8; font-weight: 600; letter-spacing: .3px; }
-.slide--hidden { opacity: 0; }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
+/* Preview card */
+.preview {
+  background: #0f0f0f;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 16px;
+  animation: fadeInUp 0.18s ease-out;
+}
+.preview__ref {
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.preview__text {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #efefef;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Bible layout */
+@media (max-width: 600px) {
+  .bible {
+    gap: 14px;
+  }
+
+  .bible__form {
+    gap: 8px;
+  }
+
+  .preview__text {
+    font-size: 0.98rem;
+  }
+}
+
+/* ========== Operator ========== */
+.operator {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 2fr 1fr;
+}
+@media (max-width: 1024px) {
+  .operator {
+    grid-template-columns: 1fr;
+  }
+}
+.operator__preview {
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  padding: 24px;
+}
+.operator__transport {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .operator {
+    gap: 12px;
+  }
+
+  .operator__preview {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .operator__transport {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .operator__transport .button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ========== Presenter ========== */
+.present {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  padding: 4vmin;
+}
+.slide {
+  width: 100%;
+  max-width: 1600px;
+  aspect-ratio: 16/9;
+  background: #000;
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+.slide__text {
+  font-size: clamp(1.6rem, 4vw, 5rem);
+  line-height: 1.22;
+  align-self: center;
+}
+.slide__ref {
+  text-align: right;
+  opacity: 0.8;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.slide--hidden {
+  opacity: 0;
+}
+
+@media (max-width: 600px) {
+  .present {
+    padding: 8px;
+  }
+
+  .slide {
+    aspect-ratio: auto;
+    min-height: 60vh;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+
+  .slide__text {
+    font-size: clamp(1.25rem, 4.4vw, 2.8rem);
+    line-height: 1.25;
+  }
+
+  .slide__ref {
+    font-size: 0.9rem;
+  }
+}
 
 /* Fullscreen helper */
-.fullscreen-hint { color: var(--muted); font-size: .9rem; }
+.fullscreen-hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
