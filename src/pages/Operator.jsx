@@ -31,17 +31,45 @@ export default function Operator() {
   } = useSettings();
 
   const first = deck && deck[0];
+  const contentType = first?.type || 'bible'; // "bible" | "songLyrics" | "songVideo"
   const versesPerSlide = settings?.versesPerSlide ?? 1;
 
-  // normalize deck for preview
-  const flatVerses = Array.isArray(first?.verses) && first.verses.length
-    ? first.verses
-    : (Array.isArray(first?.chunks) && first.chunks.length ? first.chunks.flat() : []);
+  // 🔹 Bible-only normalization for preview
+  const bibleFlatVerses =
+    first && contentType === 'bible' && Array.isArray(first?.verses) && first.verses.length
+      ? first.verses
+      : first && contentType === 'bible' && Array.isArray(first?.chunks) && first.chunks.length
+        ? first.chunks.flat()
+        : [];
 
-  const chunks = chunkByCount(flatVerses, versesPerSlide);
-  const total = chunks.length;
+  const bibleChunks = chunkByCount(bibleFlatVerses, versesPerSlide);
+
+  // 🔹 Song lyrics slides: first.chunks is array of stanza strings
+  const lyricSlides =
+    first && contentType === 'songLyrics' && Array.isArray(first.chunks)
+      ? first.chunks
+      : [];
+
+  // 🔹 Song video slides: single “slide”
+  const videoSlidesCount = contentType === 'songVideo' ? 1 : 0;
+
+  // 🔹 Total slides depending on type
+  let total = 0;
+  if (!first) {
+    total = 0;
+  } else if (contentType === 'bible') {
+    total = bibleChunks.length;
+  } else if (contentType === 'songLyrics') {
+    total = lyricSlides.length;
+  } else if (contentType === 'songVideo') {
+    total = videoSlidesCount;
+  }
+
   const safeIndex = Math.max(0, Math.min(currentIndex, Math.max(0, total - 1)));
-  const slide = total ? chunks[safeIndex] : null;
+
+  const bibleSlide = contentType === 'bible' && total ? bibleChunks[safeIndex] : null;
+  const lyricSlide =
+    contentType === 'songLyrics' && total ? lyricSlides[safeIndex] : null;
 
   async function onPickBackground(e) {
     const file = e.target.files?.[0];
@@ -65,6 +93,14 @@ export default function Operator() {
   const panelBg = isLight ? 'rgba(0,0,0,0.28)' : 'rgba(255,255,255,0.25)';
   const blurPx = settings.backdropBlurPx ?? 8; // 0–24
   const backgroundDim = settings.backgroundDim ?? 0.35; // 0–0.9
+
+  const hasContent = !!first && total > 0;
+
+  // Dock chips: Bible ref or song name
+  const refLabel =
+    contentType === 'bible'
+      ? first?.ref
+      : first?.name;
 
   return (
     <div className="container operator">
@@ -107,7 +143,7 @@ export default function Operator() {
             padding: 24
           }}
         >
-          {!slide ? (
+          {!hasContent ? (
             <div style={{ color: '#9ab4ff', fontWeight: 600 }}>Esperando presentación…</div>
           ) : (
             <div
@@ -126,26 +162,58 @@ export default function Operator() {
                 boxShadow: '0 8px 28px rgba(0,0,0,0.25)'
               }}
             >
-              {/* chips for ref + counter */}
+              {/* chips for ref/song name + counter */}
               <div className="operator__ref">
-                {settings.showRef && first?.ref && (
-                  <span className="operator__chip">{first.ref}</span>
+                {settings.showRef && refLabel && (
+                  <span className="operator__chip">{refLabel}</span>
                 )}
                 <span className="operator__chip operator__chip--muted">
                   {safeIndex + 1}/{total}
                 </span>
               </div>
 
-              {slide.map(v => (
-                <div key={v.n} className="operator__verse" style={{ margin: '6px 0' }}>
-                  {settings.showVerseNumbers && (
-                    <strong className="operator__num" style={{ marginRight: 8 }}>
-                      {v.n}
-                    </strong>
-                  )}
-                  {v.t}
+              {/* Content depending on type */}
+              {contentType === 'songLyrics' ? (
+                lyricSlide ? (
+                  lyricSlide.split('\n').map((line, idx) => (
+                    <div
+                      key={idx}
+                      className="operator__verse"
+                      style={{ margin: '6px 0' }}
+                    >
+                      {line}
+                    </div>
+                  ))
+                ) : (
+                  <div className="operator__verse" style={{ margin: '6px 0' }}>
+                    Sin letra disponible para esta canción.
+                  </div>
+                )
+              ) : contentType === 'songVideo' ? (
+                <div className="operator__verse" style={{ margin: '6px 0' }}>
+                  <strong>Modo video:</strong> {first?.name || 'Canción'}
+                  <br />
+                  <span style={{ fontSize: '0.8em', opacity: 0.8 }}>
+                    URL: {first?.url || 'N/A'}
+                  </span>
                 </div>
-              ))}
+              ) : (
+                // Bible mode (original behavior)
+                bibleSlide?.map(v => (
+                  <div
+                    key={v.n}
+                    className="operator__verse"
+                    style={{ margin: '6px 0' }}
+                  >
+                    {settings.showVerseNumbers && (
+                      <strong className="operator__num" style={{ marginRight: 8 }}>
+                        {v.n}
+                      </strong>
+                    )}
+                    {v.t}
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>

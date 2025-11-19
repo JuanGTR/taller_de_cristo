@@ -235,7 +235,12 @@ export default function BibleSearch() {
       }
     ];
     setDeck(deck);
-    navigate("/present");
+    navigate("/present", {
+  state: {
+    deck,
+    source: "bible"
+  }
+});
   }
 
   return (

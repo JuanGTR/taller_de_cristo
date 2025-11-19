@@ -4,9 +4,7 @@ import { toggleFullscreen } from '../utils/fullscreen';
 import { useSettings } from '../context/SettingsContext';
 import styles from '../styles/Present.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons'; // solid set
-import { faBookBible } from '@fortawesome/free-solid-svg-icons'; // solid set
-
+import { faGear, faBookBible } from '@fortawesome/free-solid-svg-icons';
 
 function chunkByCount(versesArray, count = 1) {
   const out = [];
@@ -15,6 +13,22 @@ function chunkByCount(versesArray, count = 1) {
     out.push(versesArray.slice(i, i + size));
   }
   return out;
+}
+
+// Simple helper: extract YouTube id from URL
+function extractYouTubeId(url) {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'youtu.be') {
+      return u.pathname.slice(1);
+    }
+    if (u.hostname.includes('youtube.com')) {
+      return u.searchParams.get('v');
+    }
+  } catch (e) {
+    return null;
+  }
+  return null;
 }
 
 export default function Present() {
@@ -45,18 +59,53 @@ export default function Present() {
 
   const deck = ctxDeck ?? [];
   const first = deck[0];
+  const contentType = first?.type || 'bible'; // "bible" | "songLyrics" | "songVideo"
   const versesPerSlide = settings?.versesPerSlide ?? 1;
 
-  const flatVerses = useMemo(() => {
+  // 🔵 NEW: smart source inference (Bible vs Music)
+  const inferredSource =
+    state?.source ||
+    (contentType === 'bible' ? 'bible' : 'music');
+
+  // Bible verses (existing logic)
+  const bibleFlatVerses = useMemo(() => {
+    if (!first || contentType !== 'bible') return [];
     if (Array.isArray(first?.verses) && first.verses.length) return first.verses;
     if (Array.isArray(first?.chunks) && first.chunks.length) return first.chunks.flat();
     return [];
-  }, [first]);
+  }, [first, contentType]);
 
-  const chunks = useMemo(() => chunkByCount(flatVerses, versesPerSlide), [flatVerses, versesPerSlide]);
-  const total = chunks.length;
+  const bibleChunks = useMemo(
+    () => chunkByCount(bibleFlatVerses, versesPerSlide),
+    [bibleFlatVerses, versesPerSlide]
+  );
+
+  // Song lyrics: we treat first.chunks as already slide-based
+  const lyricSlides = useMemo(() => {
+    if (!first || contentType !== 'songLyrics') return [];
+    if (Array.isArray(first.chunks)) return first.chunks;
+    return [];
+  }, [first, contentType]);
+
+  // Song video: single slide
+  const videoSlidesCount = contentType === 'songVideo' ? 1 : 0;
+
+  // Total slides based on content type
+  let total = 0;
+  if (!first) {
+    total = 0;
+  } else if (contentType === 'bible') {
+    total = bibleChunks.length;
+  } else if (contentType === 'songLyrics') {
+    total = lyricSlides.length;
+  } else if (contentType === 'songVideo') {
+    total = videoSlidesCount;
+  }
+
   const safeIndex = Math.max(0, Math.min(currentIndex, Math.max(0, total - 1)));
-  const slide = total ? chunks[safeIndex] : [];
+
+  const bibleSlide = contentType === 'bible' && total ? bibleChunks[safeIndex] : [];
+  const lyricSlide = contentType === 'songLyrics' && total ? lyricSlides[safeIndex] : null;
 
   function goBack()  { setCurrentIndex(i => Math.max(0, i - 1)); }
   function goNext()  { setCurrentIndex(i => Math.min((total - 1), i + 1)); }
@@ -71,6 +120,7 @@ export default function Present() {
     else if (dx < -50) goNext();
     touchStartX.current = null;
   }
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -107,9 +157,13 @@ export default function Present() {
     setDockVisible(true);
     if (dockTimer.current) clearTimeout(dockTimer.current);
     if (settings.showDock && settings.dockAutoHideSec > 0) {
-      dockTimer.current = setTimeout(() => setDockVisible(false), (settings.dockAutoHideSec ?? 5) * 1000);
+      dockTimer.current = setTimeout(
+        () => setDockVisible(false),
+        (settings.dockAutoHideSec ?? 5) * 1000
+      );
     }
   }
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -135,7 +189,20 @@ export default function Present() {
   };
 
   const hasDeck = !!first;
-  const rootColorClass = settings.textColor === 'dark' ? styles['present--dark'] : styles['present--light'];
+  const rootColorClass =
+    settings.textColor === 'dark'
+      ? styles['present--dark']
+      : styles['present--light'];
+
+  // Dock label: Bible ref or song name
+  let dockRef = '';
+  if (settings.showRef && first) {
+    if (contentType === 'bible') {
+      dockRef = first.ref ?? '';
+    } else {
+      dockRef = first.name ?? '';
+    }
+  }
 
   return (
     <div
@@ -160,34 +227,108 @@ export default function Present() {
       {!hasDeck ? (
         <div className={styles.present__empty}>
           <div>Esperando presentación…</div>
-          <button className={styles.dock__button} onClick={() => navigate('/bible')}>
-            Ir a Biblia
+          <button
+            className={styles.dock__button}
+            onClick={() =>
+              navigate(inferredSource === 'music' ? '/music' : '/bible')
+            }
+          >
+            Ir a {inferredSource === 'music' ? 'Música' : 'Biblia'}
           </button>
         </div>
       ) : (
         <>
           <div className={styles.present__verse}>
             <div className={styles.present__panel}>
-              {slide.map(v => (
-                <div key={v.n} className={styles.present__line}>
-                  {settings.showVerseNumbers && <strong>{v.n}</strong>} {v.t}
-                </div>
-              ))}
+              {contentType === 'songVideo' ? (
+                // 🎬 Song video mode
+                first.url ? (
+                  (() => {
+                    const vid = extractYouTubeId(first.url);
+                    if (vid) {
+                      return (
+                        <div className={styles.present__videoWrapper}>
+                          <iframe
+                            className={styles.present__video}
+                            src={`https://www.youtube.com/embed/${vid}?autoplay=1`}
+                            title={first.name || 'Video'}
+                            allow="autoplay; encrypted-media"
+                            allowFullScreen
+                          />
+                        </div>
+                      );
+                    }
+                    // Non-YouTube URL fallback
+                    return (
+                      <div className={styles.present__line}>
+                        No se puede reproducir el video. URL: {first.url}
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <div className={styles.present__line}>
+                    No se encontró URL de video.
+                  </div>
+                )
+              ) : contentType === 'songLyrics' ? (
+                // 🎵 Song lyrics mode
+                lyricSlide ? (
+                  lyricSlide.split('\n').map((line, idx) => (
+                    <div key={idx} className={styles.present__line}>
+                      {line}
+                    </div>
+                  ))
+                ) : (
+                  <div className={styles.present__line}>
+                    Sin letra disponible para esta canción.
+                  </div>
+                )
+              ) : (
+                // 📖 Bible mode (existing behavior)
+                bibleSlide.map(v => (
+                  <div key={v.n} className={styles.present__line}>
+                    {settings.showVerseNumbers && <strong>{v.n}</strong>} {v.t}
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
           {settings.showDock && (
-            <div className={`${styles.present__dock} ${dockVisible ? styles.isVisible : styles.isHidden}`}>
-              <button className={styles.dock__button} onClick={() => navigate('/bible')}><FontAwesomeIcon icon={faBookBible} /></button>
-              <button className={styles.dock__button} onClick={goBack}>←</button>
-              <button className={styles.dock__button} onClick={toggleFullscreen}>⛶</button>
+            <div
+              className={`${styles.present__dock} ${
+                dockVisible ? styles.isVisible : styles.isHidden
+              }`}
+            >
+              <button
+                className={styles.dock__button}
+                onClick={() =>
+                  navigate(inferredSource === 'music' ? '/music' : '/bible')
+                }
+              >
+                {inferredSource === 'music' ? '🎵' : <FontAwesomeIcon icon={faBookBible} />}
+              </button>
+
+              <button className={styles.dock__button} onClick={goBack}>
+                ←
+              </button>
+              <button className={styles.dock__button} onClick={toggleFullscreen}>
+                ⛶
+              </button>
               <div className={styles.dock__ref}>
-                {settings.showRef ? (first?.ref ?? '') : ''}
+                {dockRef}
                 {total > 0 ? ` \u2022 ${safeIndex + 1}/${total}` : ''}
               </div>
               <div className={styles.dock__actions}>
-                <button className={styles.dock__button} onClick={goNext}>→</button>
-                <button className={styles.dock__button} onClick={() => navigate('/operator')}><FontAwesomeIcon icon={faGear} /></button>
+                <button className={styles.dock__button} onClick={goNext}>
+                  →
+                </button>
+                <button
+                  className={styles.dock__button}
+                  onClick={() => navigate('/operator')}
+                >
+                  <FontAwesomeIcon icon={faGear} />
+                </button>
               </div>
             </div>
           )}

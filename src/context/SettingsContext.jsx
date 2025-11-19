@@ -60,10 +60,105 @@ export function SettingsProvider({ children }) {
     setSettings(prev => ({ ...prev, ...patch }));
   }
 
+  // 🔹 Helper: split lyrics into chunks (stanzas) by blank lines
+  function splitLyricsIntoChunks(lyrics) {
+    if (!lyrics) return [];
+    return lyrics
+      .trim()
+      .split(/\n\s*\n+/)          // blank line(s) separate stanzas
+      .map(chunk => chunk.trim())
+      .filter(Boolean);
+  }
+
+  // 🔹 Helper: normalize text color to match settings tokens ("light"/"dark")
+  function normalizeTextColor(color) {
+    if (!color) return settings.textColor || "light";
+    // Accept "white"/"black" OR "light"/"dark"
+    if (color === "white") return "light";
+    if (color === "black") return "dark";
+    return color; // assume already "light"/"dark"
+  }
+
+  // 🔹 Present: lyrics mode for songs
+  // song: { id, name, lyrics?, lyricChunks?, defaultTextColor?, defaultBlur? }
+  function presentSongLyrics(song) {
+    if (!song) return;
+    const chunks =
+      song.lyricChunks && song.lyricChunks.length
+        ? song.lyricChunks
+        : splitLyricsIntoChunks(song.lyrics || "");
+
+    const textColor = normalizeTextColor(song.defaultTextColor);
+    const blur = song.defaultBlur ?? true;
+
+    const item = {
+      type: "songLyrics",
+      songId: song.id,
+      name: song.name,
+      chunks,
+      textColor, // "light"/"dark"
+      blur,      // boolean, for background blur behind text
+    };
+
+    setDeck([item]);
+    setCurrentIndex(0);
+  }
+
+  // 🔹 Present: video mode for songs
+  // song: { id, name, url, defaultTextColor?, defaultBlur? }
+  function presentSongVideo(song) {
+    if (!song || !song.url) return;
+
+    const textColor = normalizeTextColor(song.defaultTextColor);
+    const blur = song.defaultBlur ?? true;
+
+    const item = {
+      type: "songVideo",
+      songId: song.id,
+      name: song.name,
+      url: song.url,
+      textColor,
+      blur,
+    };
+
+    setDeck([item]);
+    setCurrentIndex(0);
+  }
+
+  // 🔹 Present: auto choose (your rule: both → lyrics first)
+  function presentSongAuto(song) {
+    if (!song) return;
+    const hasLyrics = !!song.lyrics && song.lyrics.trim().length > 0;
+    const hasUrl = !!song.url && song.url.trim().length > 0;
+
+    if (hasLyrics && !hasUrl) {
+      presentSongLyrics(song);
+    } else if (!hasLyrics && hasUrl) {
+      presentSongVideo(song);
+    } else if (hasLyrics && hasUrl) {
+      // default: lyrics mode
+      presentSongLyrics(song);
+    } else {
+      // nothing to present
+      console.warn("Song has neither lyrics nor URL:", song);
+    }
+  }
+
   const value = useMemo(() => ({
-    settings, updateSetting, updateSettings,
-    deck, setDeck,
-    currentIndex, setCurrentIndex,
+    settings,
+    updateSetting,
+    updateSettings,
+
+    deck,
+    setDeck,
+    currentIndex,
+    setCurrentIndex,
+
+    // expose helpers for music mode
+    splitLyricsIntoChunks,
+    presentSongLyrics,
+    presentSongVideo,
+    presentSongAuto,
   }), [settings, deck, currentIndex]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

@@ -54,7 +54,7 @@
 .app__nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .app__nav-link {
@@ -72,6 +72,15 @@
     box-shadow 0.2s ease;
 }
 
+.app__nav-link--primary {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2a0055 0%, #470089 55%, #7a0dd6 100%);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.8);
+}
+
 .app__nav-link:hover {
   border-color: #3b2a80;
   background: rgba(154, 36, 255, 0.14);
@@ -82,6 +91,65 @@
   border-color: transparent;
   color: #061d2f;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* User avatar + dropdown */
+.app__userMenu {
+  position: relative;
+}
+
+.app__userButton {
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+}
+
+.app__userInitials {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #b44dff 0%, #9a24ff 100%);
+  display: grid;
+  place-items: center;
+  color: #061d2f;
+  font-size: 0.85rem;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.9);
+}
+
+.app__userDropdown {
+  position: absolute;
+  right: 0;
+  margin-top: 6px;
+  min-width: 160px;
+  background: #0b0b0b;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.85);
+  padding: 6px;
+  z-index: 40;
+}
+
+.app__userDropdown-item {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: #f4eaff;
+  display: block;
+  cursor: pointer;
+}
+
+.app__userDropdown-item:hover {
+  background: #181818;
+}
+
+.app__userDropdown-item--danger {
+  color: #ff8585;
 }
 
 /* Main content area */

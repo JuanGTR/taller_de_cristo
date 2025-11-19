@@ -3,14 +3,44 @@ import { useNavigate } from "react-router-dom";
 import logo from '../assets/Altar Pro Logo.svg';
 import styles from '../styles/Home.module.css';
 import SearchBar from "../components/SearchBar";
+import { useAuth } from "../context/AuthContext";
+
+// Simple helper: guess if input looks like a Bible reference
+function looksLikeBibleRef(raw) {
+  const text = raw.trim();
+  if (!text) return false;
+
+  // If it has a colon, it's very likely "Juan 3:16" / "Filipenses 4:13-15"
+  if (text.includes(":")) return true;
+
+  // If it ends with a number (e.g. "Salmo 23", "Juan 3")
+  const endsWithNumber = /\d+$/.test(text);
+  if (endsWithNumber) return true;
+
+  return false;
+}
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [homeInput, setHomeInput] = useState("");
 
   function handleHomeSearch() {
-    // Send the typed input to /bible; BibleSearch will parse/fetch
-    navigate("/bible", { state: { input: homeInput } });
+    const value = homeInput.trim();
+    if (!value) return;
+
+    const isBible = looksLikeBibleRef(value);
+
+    if (isBible) {
+      // always send Bible refs to Biblia
+      navigate("/bible", { state: { input: value } });
+    } else if (user) {
+      // logged in + not a ref → search songs in Música
+      navigate("/music", { state: { input: value } });
+    } else {
+      // not logged in → keep old behavior (always Biblia)
+      navigate("/bible", { state: { input: value } });
+    }
   }
 
   return (
@@ -42,7 +72,7 @@ export default function Home() {
           </button>
           <button
             className={styles.home__button}
-            onClick={() => alert('Muy pronto')}
+            onClick={() => navigate('/music')}
           >
             Música
           </button>
