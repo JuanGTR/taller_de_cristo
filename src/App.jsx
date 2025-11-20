@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../src/assets/Altar Pro Logo.svg";
 import { useAuth } from "./context/AuthContext";
+import { NowPlayingBar } from "./music/NowPlayingBar"; // 🔹 NEW
 
 export default function App() {
   const { pathname } = useLocation();
@@ -50,6 +51,9 @@ export default function App() {
           </Link>
 
           <nav className="app__nav">
+            {/* 🔊 Now Playing bar, top-right in the header */}
+           <Link to="/music" > <NowPlayingBar /></Link>
+
             {/* Ajustes stays */}
             <Link
               to="/operator"

@@ -42,7 +42,10 @@ export default function Present() {
     updateSetting,
     deck: ctxDeck, setDeck,
     currentIndex, setCurrentIndex,
+    mode, // 🔹 NEW: read mode from settings context
   } = useSettings();
+
+  const isPresenterCtx = mode === 'present'; // 🔹 true in this route with our current setup
 
   const [blackout, setBlackout] = useState(false);
   const [dockVisible, setDockVisible] = useState(true);
@@ -107,10 +110,23 @@ export default function Present() {
   const bibleSlide = contentType === 'bible' && total ? bibleChunks[safeIndex] : [];
   const lyricSlide = contentType === 'songLyrics' && total ? lyricSlides[safeIndex] : null;
 
-  function goBack()  { setCurrentIndex(i => Math.max(0, i - 1)); }
-  function goNext()  { setCurrentIndex(i => Math.min((total - 1), i + 1)); }
-  function goFirst() { setCurrentIndex(0); }
-  function goLast()  { setCurrentIndex(Math.max(0, total - 1)); }
+  // 🔹 Navigation is disabled in presenter-mode to avoid desync
+  function goBack()  {
+    if (isPresenterCtx) return;
+    setCurrentIndex(i => Math.max(0, i - 1));
+  }
+  function goNext()  {
+    if (isPresenterCtx) return;
+    setCurrentIndex(i => Math.min((total - 1), i + 1));
+  }
+  function goFirst() {
+    if (isPresenterCtx) return;
+    setCurrentIndex(0);
+  }
+  function goLast()  {
+    if (isPresenterCtx) return;
+    setCurrentIndex(Math.max(0, total - 1));
+  }
 
   function handleTouchStart(e) { touchStartX.current = e.touches[0].clientX; }
   function handleTouchEnd(e) {

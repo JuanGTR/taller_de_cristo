@@ -1,6 +1,14 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 const Ctx = createContext(null);
+const CHANNEL_NAME = "altarpro-presenter";
 
 // Defaults
 const DEFAULT_SETTINGS = {
@@ -19,10 +27,28 @@ const DEFAULT_SETTINGS = {
   textColor: "light",    // "light" (white text) or "dark" (black text)
 };
 
-export function SettingsProvider({ children }) {
+export function SettingsProvider({ children, mode = "solo" }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [deck, setDeck] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const channelRef = useRef(null);
+  const isOperator = mode === "operator";
+  const isPresenter = mode === "present";
+
+  // Create BroadcastChannel (browser only)
+  useEffect(() => {
+    if (typeof window === "undefined" || !("BroadcastChannel" in window)) {
+      return;
+    }
+    const ch = new BroadcastChannel(CHANNEL_NAME);
+    channelRef.current = ch;
+
+    return () => {
+      ch.close();
+      channelRef.current = null;
+    };
+  }, []);
 
   // Hydrate
   useEffect(() => {
@@ -35,7 +61,9 @@ export function SettingsProvider({ children }) {
 
       const i = localStorage.getItem("altarpro.index");
       if (i) setCurrentIndex(Number(i));
-    } catch {}
+    } catch {
+      // ignore broken localStorage
+    }
   }, []);
 
   // Persist
@@ -51,6 +79,103 @@ export function SettingsProvider({ children }) {
   useEffect(() => {
     localStorage.setItem("altarpro.index", String(currentIndex));
   }, [currentIndex]);
+
+  // ───────────────────────────────────────────
+  // 🔁 SYNC: OPERATOR → PRESENT via BroadcastChannel
+  // ───────────────────────────────────────────
+
+  // Broadcast settings changes from Operator
+  useEffect(() => {
+    if (!isOperator || !channelRef.current) return;
+
+    // only broadcast the keys that matter for presentation
+    const {
+      fontRem,
+      lineHeight,
+      maxWidthPx,
+      versesPerSlide,
+      showVerseNumbers,
+      showRef,
+      showDock,
+      dockAutoHideSec,
+      backgroundUrl,
+      backgroundDim,
+      backdropBlurPx,
+      textColor,
+    } = settings;
+
+    channelRef.current.postMessage({
+      type: "SETTINGS",
+      settings: {
+        fontRem,
+        lineHeight,
+        maxWidthPx,
+        versesPerSlide,
+        showVerseNumbers,
+        showRef,
+        showDock,
+        dockAutoHideSec,
+        backgroundUrl,
+        backgroundDim,
+        backdropBlurPx,
+        textColor,
+      },
+    });
+  }, [settings, isOperator]);
+
+  // Broadcast deck changes from Operator
+  useEffect(() => {
+    if (!isOperator || !channelRef.current) return;
+    channelRef.current.postMessage({
+      type: "DECK",
+      deck,
+    });
+  }, [deck, isOperator]);
+
+  // Broadcast currentIndex changes from Operator
+  useEffect(() => {
+    if (!isOperator || !channelRef.current) return;
+    channelRef.current.postMessage({
+      type: "INDEX",
+      index: currentIndex,
+    });
+  }, [currentIndex, isOperator]);
+
+  // Listen on Presenter side
+  useEffect(() => {
+    if (!isPresenter || !channelRef.current) return;
+
+    const ch = channelRef.current;
+
+    const handleMessage = event => {
+      const msg = event.data;
+      if (!msg || typeof msg !== "object") return;
+
+      switch (msg.type) {
+        case "SETTINGS": {
+          if (msg.settings) {
+            setSettings(prev => ({ ...prev, ...msg.settings }));
+          }
+          break;
+        }
+        case "DECK": {
+          setDeck(msg.deck || null);
+          break;
+        }
+        case "INDEX": {
+          if (typeof msg.index === "number") {
+            setCurrentIndex(msg.index);
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    };
+
+    ch.addEventListener("message", handleMessage);
+    return () => ch.removeEventListener("message", handleMessage);
+  }, [isPresenter]);
 
   function updateSetting(key, value) {
     setSettings(prev => ({ ...prev, [key]: value }));
@@ -144,22 +269,26 @@ export function SettingsProvider({ children }) {
     }
   }
 
-  const value = useMemo(() => ({
-    settings,
-    updateSetting,
-    updateSettings,
+  const value = useMemo(
+    () => ({
+      mode,
+      settings,
+      updateSetting,
+      updateSettings,
 
-    deck,
-    setDeck,
-    currentIndex,
-    setCurrentIndex,
+      deck,
+      setDeck,
+      currentIndex,
+      setCurrentIndex,
 
-    // expose helpers for music mode
-    splitLyricsIntoChunks,
-    presentSongLyrics,
-    presentSongVideo,
-    presentSongAuto,
-  }), [settings, deck, currentIndex]);
+      // expose helpers for music mode
+      splitLyricsIntoChunks,
+      presentSongLyrics,
+      presentSongVideo,
+      presentSongAuto,
+    }),
+    [mode, settings, deck, currentIndex]
+  );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -1,3 +1,22 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: #000;   /* match your .app background */
+  color: #fff;
+}
+
+/* Make sure the React root stretches */
+#root {
+  min-height: 100vh;
+}
+
+/* Optional: kill random horizontal scroll from wide elements */
+body {
+  overflow-x: hidden;
+}
+
 /* ========== Base & Theme ========== */
 .card {
   background: var(--panel);
@@ -5,6 +24,170 @@
   padding: 16px;
   box-shadow: 0 6px 20px rgba(0,0,0,.25);
 }
+
+/* ===========================
+   NOW PLAYING BAR — ALTAR PRO
+   =========================== */
+
+.app__nav .now-playing-bar {
+  margin-right: 0.75rem;
+}
+
+/* Core container */
+.now-playing-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+
+  /* Glassy dark pill */
+  background: radial-gradient(circle at top left,
+      rgba(255, 255, 255, 0.14),
+      rgba(0, 0, 0, 0.85)
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  color: #f8f8f8;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+
+  transform-origin: right center;
+  animation: np-slide-in 240ms ease-out;
+}
+
+/* Slide-in when it mounts */
+@keyframes np-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Title + animated dot */
+.now-playing-bar__title {
+  position: relative;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 1.1rem;
+}
+
+/* Little “EQ” dot to the left of text */
+.now-playing-bar__title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: #4ade80; /* soft green accent */
+  box-shadow:
+    0 0 0 0 rgba(74, 222, 128, 0.5),
+    0 0 8px 2px rgba(74, 222, 128, 0.7);
+  animation: np-pulse 1.3s ease-out infinite;
+}
+
+/* Pulse only when actually playing — 
+   you can toggle a modifier later if needed.
+*/
+@keyframes np-pulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(74, 222, 128, 0.5),
+      0 0 8px 2px rgba(74, 222, 128, 0.7);
+  }
+  60% {
+    box-shadow:
+      0 0 0 9px rgba(74, 222, 128, 0),
+      0 0 8px 2px rgba(74, 222, 128, 0.4);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(74, 222, 128, 0),
+      0 0 8px 2px rgba(74, 222, 128, 0.0);
+  }
+}
+
+/* Buttons */
+.now-playing-bar__btn {
+  border: none;
+  outline: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f9fafb;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.1);
+  transition:
+    background 140ms ease-out,
+    transform 100ms ease-out,
+    box-shadow 180ms ease-out;
+}
+
+.now-playing-bar__btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px) scale(1.03);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.now-playing-bar__btn:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: none;
+}
+
+.now-playing-bar__btn:focus-visible {
+  outline: 2px solid #4ade80;
+  outline-offset: 2px;
+}
+
+/* Slight spacing when user menu is open */
+.app__userMenu + .now-playing-bar,
+.now-playing-bar + .app__nav-link {
+  margin-left: 0.5rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .app__nav .now-playing-bar {
+    max-width: 55vw;
+    padding-inline: 0.65rem;
+  }
+
+  .now-playing-bar__title {
+    max-width: 130px;
+  }
+}
+
+@media (max-width: 520px) {
+  .app__nav .now-playing-bar {
+    display: none; /* hide on very small screens if header is tight */
+  }
+}
+
 
 /* ===== App shell + Header ===== */
 .app {

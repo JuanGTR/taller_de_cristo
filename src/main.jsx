@@ -16,7 +16,8 @@ import BibleSearch from './pages/BibleSearch';
 import Operator from './pages/Operator';
 import Present from './pages/Present';
 import { MusicModePage } from "./music/MusicModePage";
-import LoginPage from "./pages/LoginPage"; // ⬅️ make sure this file exists
+import LoginPage from "./pages/LoginPage";
+import { MusicPlayerProvider } from "./context/MusicPlayerContext"; // 🔹 NEW
 import './styles/global.css';
 
 // Small wrapper to protect routes
@@ -39,21 +40,27 @@ function RequireAuth({ children }) {
 }
 
 const router = createBrowserRouter([
+  // 🌐 Main app (operator mode)
   {
     path: '/',
-    element: <App />,
+    element: (
+      <SettingsProvider mode="operator">
+        <MusicPlayerProvider>   {/* 🔹 envuelve toda la app principal */}
+          <App />
+        </MusicPlayerProvider>
+      </SettingsProvider>
+    ),
     children: [
       { index: true, element: <Home /> },
 
-      // 👇 public login route
+      // public login route
       { path: 'login', element: <LoginPage /> },
 
-      // 👇 public (for now) routes
+      // public (for now) routes
       { path: 'bible', element: <BibleSearch /> },
       { path: 'operator', element: <Operator /> },
-      { path: 'present', element: <Present /> },
 
-      // 👇 protected music route
+      // protected music route
       {
         path: 'music',
         element: (
@@ -63,7 +70,7 @@ const router = createBrowserRouter([
         ),
       },
 
-      // 👇 protected account route
+      // protected account route
       {
         path: 'account',
         element: (
@@ -73,19 +80,26 @@ const router = createBrowserRouter([
         ),
       },
 
-      // optional: catch-all redirect
+      // catch-all redirect
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
-]);
 
+  // 🎥 Presenter window (present mode) – NOT inside App
+  {
+    path: '/present',
+    element: (
+      <SettingsProvider mode="present">
+        <Present />
+      </SettingsProvider>
+    ),
+  },
+]);
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
-      <SettingsProvider>
-        <RouterProvider router={router} />
-      </SettingsProvider>
+      <RouterProvider router={router} />
     </AuthProvider>
   </React.StrictMode>
 );

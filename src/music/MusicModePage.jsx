@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import { listenToSongs, createSong, updateSong } from "./songsApi";
 import { storage } from "../firebase/firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useMusicPlayer } from "../context/MusicPlayerContext"; // 🔹 NEW
 
 /** ---------- Helpers for YouTube ---------- */
 function extractYouTubeId(url) {
@@ -59,6 +60,8 @@ export function MusicModePage() {
     setDeck,
     setCurrentIndex,
   } = useSettings();
+
+  const { playSong, playingSong } = useMusicPlayer(); // 🔹 NEW
 
   // 🔎 UI state
   const [query, setQuery] = useState("");
@@ -174,20 +177,34 @@ export function MusicModePage() {
 
     if (!deckItem) return;
 
-    const newDeck = [deckItem]; // 🔹 define newDeck
+    const newDeck = [deckItem];
     setDeck(newDeck);
     setCurrentIndex(0);
 
-    navigate("/present", {
-      state: {
-        deck: newDeck,
-        source: "music",
-      },
-    });
+    // 🔹 Keep localStorage in sync so a brand new /present window can hydrate
+    try {
+      localStorage.setItem("altarpro.deck", JSON.stringify(newDeck));
+      localStorage.setItem("altarpro.index", "0");
+    } catch (e) {
+      console.warn(
+        "No se pudo guardar la presentación de música en localStorage",
+        e
+      );
+    }
+
+    // 🔹 Open or reuse the presenter window/tab (same as Bible)
+    if (typeof window !== "undefined") {
+      window.open("/present", "altarpro-presenter");
+    }
+  };
+
+  /** ---------- BACKGROUND YOUTUBE PLAYBACK ---------- */
+  const handlePlaySong = (song) => {
+    playSong(song);
   };
 
   /** ---------- SAVE (Firestore + Storage) ---------- */
-  const handleSaveSong = async (partialSong) => {
+  async function handleSaveSong(partialSong) {
     console.log("[MusicModePage] handleSaveSong:", partialSong);
 
     const baseData = {
@@ -241,7 +258,7 @@ export function MusicModePage() {
     } catch (err) {
       console.error("[MusicModePage] Error saving song:", err);
     }
-  };
+  }
 
   return (
     <MusicLayout>
@@ -257,6 +274,8 @@ export function MusicModePage() {
         songs={filteredSongs}
         onPresent={handlePresent}
         onEdit={handleEdit}
+        onPlay={handlePlaySong}
+        playingSongId={playingSong?.id || null}
       />
 
       {isFormOpen && (

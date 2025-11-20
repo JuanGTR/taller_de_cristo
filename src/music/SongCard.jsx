@@ -1,6 +1,12 @@
 import React, { useMemo } from "react";
 
-export function SongCard({ song, onPresent, onEdit }) {
+export function SongCard({
+  song,
+  onPresent,
+  onEdit,
+  onPlay,      // 🔹 NEW
+  isPlaying,   // 🔹 NEW
+}) {
   const {
     name,
     tags = [],
@@ -22,9 +28,23 @@ export function SongCard({ song, onPresent, onEdit }) {
     return "Sin contenido";
   }, [hasLyrics, hasUrl]);
 
+  const handleCoverClick = () => {
+    if (onPlay) {
+      onPlay();
+    }
+  };
+
   return (
-    <article id={`song-${song.id}`} className="song-card">
-      <div className="song-card__coverWrap">
+    <article
+      id={`song-${song.id}`}
+      className={`song-card${isPlaying ? " song-card--playing" : ""}`} // 🔹 optional highlight
+    >
+      <div
+        className="song-card__coverWrap"
+        onClick={handleCoverClick}      // 🔹 click cover → background play
+        role={onPlay ? "button" : undefined}
+        tabIndex={onPlay ? 0 : undefined}
+      >
         {cover ? (
           <img
             src={cover}

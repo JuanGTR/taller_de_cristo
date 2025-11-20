@@ -47,7 +47,7 @@ function normalize(str) {
 export default function BibleSearch() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setDeck } = useSettings();
+  const { setDeck, setCurrentIndex } = useSettings(); // ⬅️ grab setCurrentIndex too
 
   const {
     input, setInput,
@@ -223,7 +223,7 @@ export default function BibleSearch() {
     setDrilldownKey(k => k + 1);
   }
 
-  function sendToPresent() {
+    function sendToPresent() {
     if (!preview) return;
 
     const deck = [
@@ -234,14 +234,26 @@ export default function BibleSearch() {
         verses: preview.verses,
       }
     ];
+
+    // Build deck + reset index; this will also broadcast via SettingsProvider (operator mode)
     setDeck(deck);
-    navigate("/present", {
-  state: {
-    deck,
-    source: "bible"
+    setCurrentIndex(0);
+
+    // 🔹 Ensure localStorage is up to date BEFORE opening /present
+    try {
+      localStorage.setItem("altarpro.deck", JSON.stringify(deck));
+      localStorage.setItem("altarpro.index", "0");
+    } catch (e) {
+      // ignore storage errors (private mode, etc.)
+      console.warn("No se pudo guardar la presentación en localStorage", e);
+    }
+
+    // Open or reuse the presenter window/tab
+    if (typeof window !== "undefined") {
+      window.open("/present", "altarpro-presenter");
+    }
   }
-});
-  }
+
 
   return (
     <div className={`container bible ${preview ? "bible--has-preview" : ""}`}>

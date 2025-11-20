@@ -1,7 +1,13 @@
 import React from "react";
 import { SongCard } from "./SongCard";
 
-export function MusicContent({ songs, onPresent, onEdit }) {
+export function MusicContent({
+  songs,
+  onPresent,
+  onEdit,
+  onPlay,          // 🔹 NEW
+  playingSongId,   // 🔹 NEW
+}) {
   const count = songs.length;
 
   return (
@@ -28,6 +34,8 @@ export function MusicContent({ songs, onPresent, onEdit }) {
               song={song}
               onPresent={() => onPresent(song)}
               onEdit={() => onEdit(song)}
+              onPlay={onPlay ? () => onPlay(song) : undefined} // 🔹 pass down
+              isPlaying={playingSongId === song.id}            // 🔹 highlight current
             />
           ))}
         </div>

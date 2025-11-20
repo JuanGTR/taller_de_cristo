@@ -237,7 +237,11 @@ export default function Operator() {
           </button>
           <button
             className="button button--ghost"
-            onClick={() => navigate('/present')}
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.open('/present', 'altarpro-presenter');
+              }
+            }}
           >
             Abrir Presentación
           </button>
