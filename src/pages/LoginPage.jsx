@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGoogle } from "@fortawesome/free-brands-svg-icons/faGoogle";
+import { faApple } from "@fortawesome/free-brands-svg-icons/faApple";
 
 export default function LoginPage() {
   const {
@@ -221,15 +224,7 @@ export default function LoginPage() {
               cursor: busy ? "default" : "pointer",
             }}
           >
-            <span
-              style={{
-                width: 18,
-                height: 18,
-                borderRadius: "50%",
-                background: "#fff",
-                display: "inline-block",
-              }}
-            />
+           <FontAwesomeIcon icon={faGoogle} />
             <span>Continuar con Google</span>
           </button>
 
@@ -258,7 +253,7 @@ export default function LoginPage() {
                 fontSize: 16,
               }}
             >
-              
+              <FontAwesomeIcon icon={faApple} />
             </span>
             <span>Continuar con Apple</span>
           </button>
