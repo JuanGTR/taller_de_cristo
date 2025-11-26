@@ -176,27 +176,30 @@
 .drilldown__grid--books,
 .drilldown__grid--chapters,
 .drilldown__grid--verses,
-.drilldown__section-title {
+.drilldown__section-title--books,
+.drilldown__section-title--chapters,
+.drilldown__section-title--verses {
   display: none;
 }
 
 /* Step: books */
-.drilldown[data-step="books"] .drilldown__section-title:nth-of-type(1),
+.drilldown[data-step="books"] .drilldown__section-title--books,
 .drilldown[data-step="books"] .drilldown__grid--books {
   display: grid;
 }
 
 /* Step: chapters */
-.drilldown[data-step="chapters"] .drilldown__section-title:nth-of-type(2),
+.drilldown[data-step="chapters"] .drilldown__section-title--chapters,
 .drilldown[data-step="chapters"] .drilldown__grid--chapters {
   display: grid;
 }
 
 /* Step: verses */
-.drilldown[data-step="verses"] .drilldown__section-title:nth-of-type(3),
+.drilldown[data-step="verses"] .drilldown__section-title--verses,
 .drilldown[data-step="verses"] .drilldown__grid--verses {
   display: grid;
 }
+
 
 
 /* Loading hint */

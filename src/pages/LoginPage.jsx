@@ -5,6 +5,66 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons/faGoogle";
 import { faApple } from "@fortawesome/free-brands-svg-icons/faApple";
 
+// 🔹 Helper: map Firebase auth errors to friendly messages
+function getAuthErrorMessage(err, { mode = "login", provider = "password" } = {}) {
+  const code = err?.code || "";
+  const message = err?.message || "";
+
+  // Prefer Firebase error code when available
+  if (code.startsWith("auth/")) {
+    switch (code) {
+      case "auth/invalid-email":
+        return "El correo electrónico no es válido. Revisa que esté bien escrito.";
+
+      case "auth/user-not-found":
+        return "No encontramos una cuenta con ese correo. Verifica el correo o crea una cuenta nueva.";
+
+      case "auth/wrong-password":
+        return "La contraseña es incorrecta. Vuelve a intentarlo.";
+
+      case "auth/too-many-requests":
+        return "Demasiados intentos fallidos. Intenta de nuevo más tarde o restablece tu contraseña.";
+
+      case "auth/email-already-in-use":
+        return "Ya existe una cuenta con este correo. Inicia sesión en lugar de registrarte.";
+
+      case "auth/weak-password":
+        return "La contraseña es muy débil. Usa al menos 6 caracteres.";
+
+      case "auth/unauthorized-domain":
+        return "Este dominio no está autorizado para usar el inicio de sesión. Revisa la configuración de Firebase (Authorized domains).";
+
+      case "auth/popup-closed-by-user":
+        return "Cerraste la ventana de inicio de sesión antes de terminar. Intenta de nuevo.";
+
+      case "auth/cancelled-popup-request":
+        return "Se canceló el intento de inicio de sesión. Intenta de nuevo.";
+
+      default:
+        break;
+    }
+  }
+
+  // Message-based fallback (por si solo viene el texto)
+  if (message.includes("auth/unauthorized-domain")) {
+    return "Este dominio no está autorizado para usar el inicio de sesión. Revisa la configuración de Firebase.";
+  }
+
+  // Contextual generic fallback
+  if (provider === "google") {
+    return "No se pudo iniciar sesión con Google. Intenta de nuevo en unos segundos.";
+  }
+  if (provider === "apple") {
+    return "No se pudo iniciar sesión con Apple. Intenta de nuevo en unos segundos.";
+  }
+
+  if (mode === "register") {
+    return "No se pudo crear la cuenta. Verifica el correo y la contraseña e inténtalo de nuevo.";
+  }
+
+  return "No se pudo iniciar sesión. Verifica tus datos e inténtalo de nuevo.";
+}
+
 export default function LoginPage() {
   const {
     login,
@@ -34,7 +94,7 @@ export default function LoginPage() {
       navigate("/music"); // landing after auth
     } catch (err) {
       console.error(err);
-      setError(err.message || "Error de autenticación");
+      setError(getAuthErrorMessage(err, { mode, provider: "password" }));
     } finally {
       setBusy(false);
     }
@@ -48,7 +108,7 @@ export default function LoginPage() {
       navigate("/music");
     } catch (err) {
       console.error(err);
-      setError(err.message || "No se pudo iniciar sesión con Google");
+      setError(getAuthErrorMessage(err, { mode, provider: "google" }));
     } finally {
       setBusy(false);
     }
@@ -62,10 +122,15 @@ export default function LoginPage() {
       navigate("/music");
     } catch (err) {
       console.error(err);
-      setError(err.message || "No se pudo iniciar sesión con Apple");
+      setError(getAuthErrorMessage(err, { mode, provider: "apple" }));
     } finally {
       setBusy(false);
     }
+  }
+
+  function switchMode(nextMode) {
+    setMode(nextMode);
+    setError(""); // 🔹 limpia errores al cambiar de login/registro
   }
 
   return (
@@ -148,7 +213,17 @@ export default function LoginPage() {
         </label>
 
         {error && (
-          <div style={{ color: "#ff6b6b", fontSize: 13, marginBottom: 8 }}>
+          <div
+            style={{
+              color: "#ff6b6b",
+              fontSize: 13,
+              marginBottom: 8,
+              background: "rgba(255, 107, 107, 0.06)",
+              borderRadius: 8,
+              padding: "6px 8px",
+              border: "1px solid rgba(255, 107, 107, 0.35)",
+            }}
+          >
             {error}
           </div>
         )}
@@ -224,10 +299,12 @@ export default function LoginPage() {
               cursor: busy ? "default" : "pointer",
             }}
           >
-           <FontAwesomeIcon icon={faGoogle} />
+            <FontAwesomeIcon icon={faGoogle} />
             <span>Continuar con Google</span>
           </button>
 
+          {/* Apple remains commented until you're ready to wire it */}
+          {/*
           <button
             type="button"
             onClick={handleApple}
@@ -257,6 +334,7 @@ export default function LoginPage() {
             </span>
             <span>Continuar con Apple</span>
           </button>
+          */}
         </div>
 
         <div
@@ -278,7 +356,7 @@ export default function LoginPage() {
                   padding: 0,
                   cursor: "pointer",
                 }}
-                onClick={() => setMode("register")}
+                onClick={() => switchMode("register")}
               >
                 Regístrate
               </button>
@@ -295,7 +373,7 @@ export default function LoginPage() {
                   padding: 0,
                   cursor: "pointer",
                 }}
-                onClick={() => setMode("login")}
+                onClick={() => switchMode("login")}
               >
                 Inicia sesión
               </button>

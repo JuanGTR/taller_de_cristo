@@ -243,7 +243,7 @@ export default function BibleDrilldown({
       </div>
 
       {/* BOOKS */}
-      <div className="drilldown__section-title">Libros</div>
+      <div className="drilldown__section-title drilldown__section-title--books">Libros</div>
       <div className="drilldown__grid drilldown__grid--books">
         {activeBooks.map(b => (
           <button
@@ -257,7 +257,7 @@ export default function BibleDrilldown({
       </div>
 
       {/* CHAPTERS */}
-      <div className="drilldown__section-title">Capítulos {book ? `• ${book.name}` : ""}</div>
+      <div className="drilldown__section-title drilldown__section-title--chapters">Capítulos {book ? `• ${book.name}` : ""}</div>
       <div className="drilldown__grid drilldown__grid--chapters">
         {Array.from({ length: chapterCount }, (_, i) => i + 1).map(n => (
           <button
@@ -271,7 +271,7 @@ export default function BibleDrilldown({
       </div>
 
       {/* VERSES */}
-      <div className="drilldown__section-title">
+      <div className="drilldown__section-title drilldown__section-title--verses">
         Versos {book && chapter ? `• ${book.name} ${chapter}` : ""}
         {from != null ? `  (${Math.min(from, to)}${to && to !== from ? `–${Math.max(from, to)}` : ""})` : ""}
       </div>

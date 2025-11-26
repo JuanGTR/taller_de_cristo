@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicLayout } from "./MusicLayout";
 import { MusicToolbar } from "./MusicToolBar";
@@ -72,13 +72,18 @@ export function MusicModePage() {
   // 🔥 Songs from Firestore
   const [songs, setSongs] = useState([]);
 
+  const seededFromLocationRef = useRef(false);
+
   // Seed query if Home sent an input
   useEffect(() => {
+    if (seededFromLocationRef.current) return;
+
     const initial = location.state?.input;
-    if (initial && !query) {
+    if (initial && typeof initial === "string" && initial.trim().length > 0) {
       setQuery(initial);
+      seededFromLocationRef.current = true;
     }
-  }, [location.state, query]);
+  }, [location.state]);
 
   // Subscribe to Firestore when user changes
   useEffect(() => {

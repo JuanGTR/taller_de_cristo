@@ -43,11 +43,16 @@
   text-align: center;
 }
 
-/* Optional blurred panel behind text */
+/* Panel that holds the text + pill */
 .present__panel {
+  position: relative; /* needed for the pill */
+
   max-width: var(--slide-max-width);
   margin: 0 auto;
-  padding: 18px clamp(12px, 2vw, 28px);
+
+  /* TOP | LEFT+RIGHT | BOTTOM */
+  padding: 3.2rem clamp(12px, 2vw, 28px) 22px;
+
   border-radius: 20px;
   backdrop-filter: blur(var(--panel-blur, 0px));
   -webkit-backdrop-filter: blur(var(--panel-blur, 0px));
@@ -68,6 +73,36 @@
   margin-right: 0.25em;
   color: var(--verse-num, #88ccff);
 }
+
+/* Bible ref pill at the top of the slide */
+.present__refPill {
+  position: absolute;
+  top: -4.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 0.35rem 1.2rem;
+  border-radius: 999px;
+
+  background: radial-gradient(circle at top left,
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 0.4)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+
+  font-size: 1.05rem;      /* 🔹 more prominent */
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+
+  color: #f9fafb;
+  pointer-events: none;    /* don’t block clicks/gestures on slide */
+}
+
 
 /* Text color modes */
 .present--light {

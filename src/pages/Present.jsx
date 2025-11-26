@@ -42,10 +42,10 @@ export default function Present() {
     updateSetting,
     deck: ctxDeck, setDeck,
     currentIndex, setCurrentIndex,
-    mode, // 🔹 NEW: read mode from settings context
+    mode,
   } = useSettings();
 
-  const isPresenterCtx = mode === 'present'; // 🔹 true in this route with our current setup
+  const isPresenterCtx = mode === 'present';
 
   const [blackout, setBlackout] = useState(false);
   const [dockVisible, setDockVisible] = useState(true);
@@ -109,6 +109,17 @@ export default function Present() {
 
   const bibleSlide = contentType === 'bible' && total ? bibleChunks[safeIndex] : [];
   const lyricSlide = contentType === 'songLyrics' && total ? lyricSlides[safeIndex] : null;
+
+  // 🔹 NEW: derive slide-level Bible reference label (book + chapter only)
+  let slideRefLabel = '';
+  if (contentType === 'bible' && first?.ref) {
+    const raw = first.ref; // e.g. "Juan 3:16-18"
+    const colonIdx = raw.indexOf(':');
+    slideRefLabel = colonIdx !== -1 ? raw.slice(0, colonIdx) : raw; // "Juan 3"
+  }
+
+  const showSlideRefPill =
+    settings.showRef && contentType === 'bible' && !!slideRefLabel;
 
   // 🔹 Navigation is disabled in presenter-mode to avoid desync
   function goBack()  {
@@ -256,6 +267,13 @@ export default function Present() {
         <>
           <div className={styles.present__verse}>
             <div className={styles.present__panel}>
+              {/* 🔹 NEW: Bible ref pill at top of slide */}
+              {showSlideRefPill && (
+                <div className={styles.present__refPill}>
+                  {slideRefLabel}
+                </div>
+              )}
+
               {contentType === 'songVideo' ? (
                 // 🎬 Song video mode
                 first.url ? (
